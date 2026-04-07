@@ -1,0 +1,27 @@
+{
+  "name": "obsidian-widgets",
+  "version": "1.0.0",
+  "description": "Render code blocks as interactive widgets in Obsidian.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc --noEmit --skipLibCheck && node esbuild.config.mjs production"
+  },
+  "keywords": ["obsidian", "obsidian-plugin", "widgets", "dashboard"],
+  "author": "FabianIsaac",
+  "license": "MIT",
+  "dependencies": {
+    "i18next": "^23.16.4",
+    "js-yaml": "^4.1.0",
+    "obsidian-daily-notes-interface": "^0.9.4"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.0.0",
+    "builtin-modules": "^4.0.0",
+    "esbuild": "^0.21.5",
+    "obsidian": "latest",
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.4"
+  }
+}

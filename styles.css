@@ -1,0 +1,100 @@
+/* ============================================================
+   Obsidian Widgets — Dashboard Widget styles
+   ============================================================ */
+
+.widget-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--radius-m, 8px);
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  margin: 4px 0;
+}
+
+/* ── Row 1: Icon bar ── */
+
+.widget-dashboard__icon-bar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.widget-dashboard__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-s, 4px);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.widget-dashboard__icon-btn:hover {
+  color: var(--text-normal);
+  background-color: var(--background-modifier-hover);
+}
+
+.widget-dashboard__icon-btn:active {
+  background-color: var(--background-modifier-active-hover);
+}
+
+/* ── Row 2: Date bar ── */
+
+.widget-dashboard__date-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.widget-dashboard__date-text {
+  font-size: var(--font-ui-medium, 15px);
+  font-weight: 500;
+  color: var(--text-normal);
+  cursor: pointer;
+  border-radius: var(--radius-s, 4px);
+  padding: 2px 4px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  text-transform: capitalize;
+}
+
+.widget-dashboard__date-text:hover {
+  color: var(--text-accent);
+  background-color: var(--background-modifier-hover);
+  text-decoration: none;
+}
+
+.widget-dashboard__weekly-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-s, 4px);
+  cursor: pointer;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.widget-dashboard__weekly-btn:hover {
+  color: var(--text-accent);
+  background-color: var(--background-modifier-hover);
+}
+
+.widget-dashboard__weekly-btn:active {
+  background-color: var(--background-modifier-active-hover);
+}

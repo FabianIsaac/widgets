@@ -1,0 +1,7 @@
+{
+  "dashboard": {
+    "openDailyNote": "Open daily note",
+    "openWeeklyNote": "Open weekly note",
+    "noPeriodicPlugin": "Daily Notes or Periodic Notes plugin is required"
+  }
+}
