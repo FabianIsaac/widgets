@@ -24,6 +24,10 @@ export class YamlDailyNoteParser implements IWidgetParser<DailyNoteConfig> {
   private validate(raw: Record<string, unknown>): DailyNoteConfig {
     const config: DailyNoteConfig = {};
 
+    if (typeof raw["name"] === "string" && raw["name"].trim()) {
+      config.name = raw["name"].trim();
+    }
+
     const w = raw["weather"];
     if (w && typeof w === "object" && !Array.isArray(w)) {
       const weather = w as Record<string, unknown>;

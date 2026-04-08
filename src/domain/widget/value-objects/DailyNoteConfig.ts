@@ -6,4 +6,6 @@ import { WeatherConfig } from "@domain/weather/value-objects/WeatherConfig";
 export interface DailyNoteConfig {
   /** Optional weather section configuration */
   weather?: WeatherConfig;
+  /** Optional name for personalized greeting ("Buenos días, Fabian") */
+  name?: string;
 }

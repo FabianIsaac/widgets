@@ -16,6 +16,12 @@
     "fetchingWeather": "Loading weather…",
     "weatherError": "Weather unavailable"
   },
+  "weekly": {
+    "week": "Week",
+    "openNote": "Open weekly note",
+    "fetchingWeather": "Loading forecast…",
+    "weatherError": "Forecast unavailable"
+  },
   "settings": {
     "title": "Obsidian Widgets",
     "language": "Language",

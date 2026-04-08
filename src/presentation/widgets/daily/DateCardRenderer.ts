@@ -13,12 +13,15 @@ function getISOWeekNumber(date: Date): number {
 
 /**
  * Returns a greeting string based on the current hour.
+ * If a name is provided, appends it: "Buenos días, Fabian".
  */
-function getGreeting(): string {
+function getGreeting(name?: string): string {
   const hour = new Date().getHours();
-  if (hour >= 6 && hour < 12) return t("daily.greetingMorning");
-  if (hour >= 12 && hour < 19) return t("daily.greetingAfternoon");
-  return t("daily.greetingEvening");
+  let base: string;
+  if (hour >= 6 && hour < 12) base = t("daily.greetingMorning");
+  else if (hour >= 12 && hour < 19) base = t("daily.greetingAfternoon");
+  else base = t("daily.greetingEvening");
+  return name ? `${base}, ${name}` : base;
 }
 
 /**
@@ -42,7 +45,7 @@ function getMonthAbbr(date: Date, locale: string): string {
  *   Lunes • Semana 15    ← day name + week number
  *   Buenos días          ← greeting
  */
-export function renderDateCard(container: HTMLElement, calendarDate: CalendarDate): void {
+export function renderDateCard(container: HTMLElement, calendarDate: CalendarDate, name?: string): void {
   const wrapper = container.createDiv({ cls: "widget-daily__date-section" });
 
   // Card with big number + month abbreviation
@@ -71,9 +74,9 @@ export function renderDateCard(container: HTMLElement, calendarDate: CalendarDat
     text: `${t("daily.week")} ${getISOWeekNumber(calendarDate.raw)}`,
   });
 
-  // Greeting
+  // Greeting (with optional name)
   wrapper.createEl("span", {
     cls: "widget-daily__greeting",
-    text: getGreeting(),
+    text: getGreeting(name),
   });
 }

@@ -3,13 +3,18 @@ import { initI18n } from "@infrastructure/i18n/i18n";
 import { ObsidianPeriodicNoteAdapter } from "@infrastructure/obsidian/ObsidianPeriodicNoteAdapter";
 import { YamlDashboardParser } from "@infrastructure/parsers/YamlDashboardParser";
 import { YamlDailyNoteParser } from "@infrastructure/parsers/YamlDailyNoteParser";
+import { YamlWeeklyNoteParser } from "@infrastructure/parsers/YamlWeeklyNoteParser";
 import { OpenMeteoWeatherAdapter } from "@infrastructure/weather/OpenMeteoWeatherAdapter";
+import { OpenMeteoForecastAdapter } from "@infrastructure/weather/OpenMeteoForecastAdapter";
 import { ParseDashboardConfigUseCase } from "@application/dashboard/ParseDashboardConfigUseCase";
 import { OpenPeriodicNoteUseCase } from "@application/dashboard/OpenPeriodicNoteUseCase";
 import { ParseDailyNoteConfigUseCase } from "@application/daily/ParseDailyNoteConfigUseCase";
 import { FetchWeatherUseCase } from "@application/daily/FetchWeatherUseCase";
+import { ParseWeeklyNoteConfigUseCase } from "@application/weekly/ParseWeeklyNoteConfigUseCase";
+import { FetchWeeklyForecastUseCase } from "@application/weekly/FetchWeeklyForecastUseCase";
 import { DashboardWidgetRenderer } from "@presentation/widgets/dashboard/DashboardWidgetRenderer";
 import { DailyNoteWidgetRenderer } from "@presentation/widgets/daily/DailyNoteWidgetRenderer";
+import { WeeklyNoteWidgetRenderer } from "@presentation/widgets/weekly/WeeklyNoteWidgetRenderer";
 import { WidgetSettingsTab } from "@presentation/settings/WidgetSettingsTab";
 import { SettingsManager } from "@presentation/settings/SettingsManager";
 
@@ -19,6 +24,7 @@ import { SettingsManager } from "@presentation/settings/SettingsManager";
  * Registered code block processors:
  *   - widget-dashboard  → configurable icon bar + date bar
  *   - widget-daily      → date card + weather + day navigation
+ *   - widget-weekly     → week number + month/year + 7-day grid with forecast
  */
 export default class ObsidianWidgetsPlugin extends Plugin {
   public settingsManager!: SettingsManager;
@@ -60,7 +66,20 @@ export default class ObsidianWidgetsPlugin extends Plugin {
       (source, el, ctx) => dailyNoteRenderer.render(source, el, ctx)
     );
 
-    // 6. Settings tab
+    // 6. Weekly note widget
+    const weeklyNoteRenderer = new WeeklyNoteWidgetRenderer(
+      new ParseWeeklyNoteConfigUseCase(new YamlWeeklyNoteParser()),
+      new FetchWeeklyForecastUseCase(new OpenMeteoForecastAdapter()),
+      openPeriodicNoteUseCase,
+      this.app
+    );
+
+    this.registerMarkdownCodeBlockProcessor(
+      "widget-weekly",
+      (source, el, ctx) => weeklyNoteRenderer.render(source, el, ctx)
+    );
+
+    // 7. Settings tab
     this.addSettingTab(new WidgetSettingsTab(this.app, this));
   }
 

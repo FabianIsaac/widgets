@@ -295,3 +295,134 @@
 .widget-daily__open-btn:hover {
   background: var(--interactive-accent-hover);
 }
+
+/* ============================================================
+   Obsidian Widgets — Weekly Note Widget styles
+   ============================================================ */
+
+.widget-weekly {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-m, 8px);
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  margin: 4px 0;
+}
+
+/* ── Header: week number + month/year ── */
+
+.widget-weekly__week-row {
+  display: flex;
+  align-items: center;
+}
+
+.widget-weekly__week-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px 2px 4px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-s, 4px);
+  cursor: pointer;
+  color: var(--text-accent);
+  font-size: var(--font-ui-medium, 14px);
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.widget-weekly__week-btn:hover {
+  background: var(--background-modifier-hover);
+}
+
+.widget-weekly__week-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-accent);
+}
+
+.widget-weekly__month-year {
+  font-size: var(--font-ui-small, 12px);
+  color: var(--text-muted);
+  padding-left: 4px;
+  text-transform: capitalize;
+}
+
+/* ── 7-day grid ── */
+
+.widget-weekly__days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.widget-weekly__day-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px 10px;
+  border-radius: var(--radius-s, 4px);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  min-width: 0;
+}
+
+.widget-weekly__day-col:hover {
+  background: var(--background-modifier-hover);
+}
+
+/* Today column highlight */
+.widget-weekly__day-col.is-today {
+  background: var(--background-modifier-active-hover);
+  border-color: var(--interactive-accent);
+}
+
+.widget-weekly__day-col.is-today .widget-weekly__day-abbr {
+  color: var(--interactive-accent);
+  font-weight: 700;
+}
+
+.widget-weekly__day-col.is-today .widget-weekly__day-num {
+  color: var(--interactive-accent);
+  font-weight: 700;
+}
+
+/* Day abbreviation (LUN, MAR, …) */
+.widget-weekly__day-abbr {
+  font-size: 0.7em;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Day number */
+.widget-weekly__day-num {
+  font-size: 1.1em;
+  font-weight: 500;
+  color: var(--text-normal);
+  line-height: 1;
+}
+
+/* Weather emoji */
+.widget-weekly__day-emoji {
+  font-size: 1.15em;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* Max / min temperature */
+.widget-weekly__day-temp {
+  font-size: 0.7em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.widget-weekly__day-temp--loading {
+  color: var(--text-faint);
+}

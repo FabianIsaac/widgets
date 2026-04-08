@@ -36,7 +36,7 @@ class DailyNoteWidgetComponent extends MarkdownRenderChild {
     // ── Top section: date card (left) + weather (right) ──
     const topSection = container.createDiv({ cls: "widget-daily__top" });
 
-    renderDateCard(topSection, today);
+    renderDateCard(topSection, today, config.name);
 
     if (config.weather) {
       const weatherEl = topSection.createDiv({ cls: "widget-daily__weather-card" });

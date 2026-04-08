@@ -16,6 +16,12 @@
     "fetchingWeather": "Cargando clima…",
     "weatherError": "Clima no disponible"
   },
+  "weekly": {
+    "week": "Semana",
+    "openNote": "Abrir nota semanal",
+    "fetchingWeather": "Cargando pronóstico…",
+    "weatherError": "Pronóstico no disponible"
+  },
   "settings": {
     "title": "Obsidian Widgets",
     "language": "Idioma",
