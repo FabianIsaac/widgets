@@ -1,7 +1,7 @@
 import * as yaml from "js-yaml";
-import { DashboardConfig } from "../../domain/widget/value-objects/DashboardConfig";
-import { IconConfig } from "../../domain/widget/value-objects/IconConfig";
-import { IWidgetParser } from "../../domain/widget/ports/IWidgetParser";
+import { DashboardConfig } from "@domain/widget/value-objects/DashboardConfig";
+import { IconConfig } from "@domain/widget/value-objects/IconConfig";
+import { IWidgetParser } from "@domain/widget/ports/IWidgetParser";
 
 /**
  * Infrastructure implementation: parses YAML code block source into a

@@ -1,6 +1,10 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const prod = process.argv[2] === "production";
 
@@ -31,6 +35,12 @@ const context = await esbuild.context({
   outfile: "main.js",
   minify: prod,
   resolveExtensions: [".ts", ".js", ".json"],
+  alias: {
+    "@domain": path.resolve(__dirname, "src/domain"),
+    "@application": path.resolve(__dirname, "src/application"),
+    "@infrastructure": path.resolve(__dirname, "src/infrastructure"),
+    "@presentation": path.resolve(__dirname, "src/presentation"),
+  },
 });
 
 if (prod) {

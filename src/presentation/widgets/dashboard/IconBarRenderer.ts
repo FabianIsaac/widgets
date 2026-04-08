@@ -1,5 +1,5 @@
 import { App, setIcon } from "obsidian";
-import { DashboardConfig } from "../../../domain/widget/value-objects/DashboardConfig";
+import { DashboardConfig } from "@domain/widget/value-objects/DashboardConfig";
 
 /**
  * Presentation: renders Row 1 of the dashboard widget — the icon bar.

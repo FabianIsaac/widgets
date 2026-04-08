@@ -9,8 +9,8 @@ import {
   getDailyNote,
   getWeeklyNote,
 } from "obsidian-daily-notes-interface";
-import { IPeriodicNotePort } from "../../domain/calendar/ports/IPeriodicNotePort";
-import { t } from "../i18n/i18n";
+import { IPeriodicNotePort } from "@domain/calendar/ports/IPeriodicNotePort";
+import { t } from "@infrastructure/i18n/i18n";
 
 declare const moment: (date?: Date) => ReturnType<typeof import("moment")>;
 

@@ -22,10 +22,16 @@ function detectLocale(): string {
 
 /**
  * Initializes i18next with English and Spanish resources.
- * Must be called once during plugin load.
+ * @param language - explicit language code ("en" | "es"). Pass "auto" or omit to
+ *                   auto-detect from Obsidian's moment locale.
  */
-export async function initI18n(): Promise<void> {
-  const lng = detectLocale();
+export async function initI18n(language?: string): Promise<void> {
+  const lng = (language && language !== "auto") ? language : detectLocale();
+
+  if (i18next.isInitialized) {
+    await i18next.changeLanguage(lng);
+    return;
+  }
 
   await i18next.init({
     lng,
@@ -39,6 +45,15 @@ export async function initI18n(): Promise<void> {
 }
 
 /**
+ * Changes the active language at runtime (e.g. from the settings tab).
+ * Re-renders of open notes happen automatically when the user navigates away
+ * and back, or when notes are reloaded.
+ */
+export async function changeLanguage(lang: string): Promise<void> {
+  await i18next.changeLanguage(lang === "auto" ? detectLocale() : lang);
+}
+
+/**
  * Translate a key using the current language.
  * Usage: t("dashboard.openDailyNote")
  */
@@ -48,7 +63,8 @@ export function t(key: string): string {
 
 /**
  * Returns the currently active locale string (e.g. "en", "es").
+ * When language setting is "auto", returns the detected Obsidian locale.
  */
 export function getLocale(): string {
-  return detectLocale();
+  return i18next.language ?? detectLocale();
 }

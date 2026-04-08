@@ -1,9 +1,9 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import type ObsidianWidgetsPlugin from "../../main";
+import { t, changeLanguage } from "@infrastructure/i18n/i18n";
 
 /**
  * Settings tab for the Obsidian Widgets plugin.
- * Placeholder for future per-plugin configuration.
  */
 export class WidgetSettingsTab extends PluginSettingTab {
   private readonly plugin: ObsidianWidgetsPlugin;
@@ -17,12 +17,23 @@ export class WidgetSettingsTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    containerEl.createEl("h2", { text: "Obsidian Widgets" });
+    containerEl.createEl("h2", { text: t("settings.title") });
 
     new Setting(containerEl)
-      .setName("Version")
-      .setDesc(
-        `Plugin version: ${this.plugin.manifest.version}. More settings coming in future releases.`
-      );
+      .setName(t("settings.language"))
+      .setDesc(t("settings.languageDesc"))
+      .addDropdown((dropdown) => {
+        dropdown
+          .addOption("auto", t("settings.languageAuto"))
+          .addOption("en", "English")
+          .addOption("es", "Español")
+          .setValue(this.plugin.settingsManager.get().language)
+          .onChange(async (value) => {
+            await this.plugin.settingsManager.update({ language: value });
+            await changeLanguage(value);
+            // Re-render settings tab with the new language
+            this.display();
+          });
+      });
   }
 }

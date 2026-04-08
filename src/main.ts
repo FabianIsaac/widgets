@@ -1,11 +1,12 @@
 import { Plugin } from "obsidian";
-import { initI18n } from "./infrastructure/i18n/i18n";
-import { ObsidianPeriodicNoteAdapter } from "./infrastructure/obsidian/ObsidianPeriodicNoteAdapter";
-import { YamlDashboardParser } from "./infrastructure/parsers/YamlDashboardParser";
-import { ParseDashboardConfigUseCase } from "./application/dashboard/ParseDashboardConfigUseCase";
-import { OpenPeriodicNoteUseCase } from "./application/dashboard/OpenPeriodicNoteUseCase";
-import { DashboardWidgetRenderer } from "./presentation/widgets/dashboard/DashboardWidgetRenderer";
-import { WidgetSettingsTab } from "./presentation/settings/WidgetSettingsTab";
+import { initI18n } from "@infrastructure/i18n/i18n";
+import { ObsidianPeriodicNoteAdapter } from "@infrastructure/obsidian/ObsidianPeriodicNoteAdapter";
+import { YamlDashboardParser } from "@infrastructure/parsers/YamlDashboardParser";
+import { ParseDashboardConfigUseCase } from "@application/dashboard/ParseDashboardConfigUseCase";
+import { OpenPeriodicNoteUseCase } from "@application/dashboard/OpenPeriodicNoteUseCase";
+import { DashboardWidgetRenderer } from "@presentation/widgets/dashboard/DashboardWidgetRenderer";
+import { WidgetSettingsTab } from "@presentation/settings/WidgetSettingsTab";
+import { SettingsManager } from "@presentation/settings/SettingsManager";
 
 /**
  * Obsidian Widgets Plugin entry point.
@@ -15,11 +16,17 @@ import { WidgetSettingsTab } from "./presentation/settings/WidgetSettingsTab";
  *   - widget-dashboard
  */
 export default class ObsidianWidgetsPlugin extends Plugin {
-  async onload(): Promise<void> {
-    // 1. Initialize i18n (detects Obsidian's locale automatically)
-    await initI18n();
+  public settingsManager!: SettingsManager;
 
-    // 2. Wire up dependencies (manual DI — no framework needed)
+  async onload(): Promise<void> {
+    // 1. Load persisted settings
+    this.settingsManager = new SettingsManager(this);
+    await this.settingsManager.load();
+
+    // 2. Initialize i18n using the saved language preference
+    await initI18n(this.settingsManager.get().language);
+
+    // 3. Wire up dependencies (manual DI)
     const periodicNoteAdapter = new ObsidianPeriodicNoteAdapter(this.app);
     const yamlParser = new YamlDashboardParser();
     const parseUseCase = new ParseDashboardConfigUseCase(yamlParser);
@@ -31,17 +38,17 @@ export default class ObsidianWidgetsPlugin extends Plugin {
       this.app
     );
 
-    // 3. Register code block processor
+    // 4. Register code block processor — ctx.addChild() handles component lifecycle
     this.registerMarkdownCodeBlockProcessor(
       "widget-dashboard",
-      (source, el) => dashboardRenderer.render(source, el)
+      (source, el, ctx) => dashboardRenderer.render(source, el, ctx)
     );
 
-    // 4. Register settings tab
+    // 5. Register settings tab
     this.addSettingTab(new WidgetSettingsTab(this.app, this));
   }
 
   onunload(): void {
-    // Obsidian automatically cleans up registered processors and event listeners
+    // Obsidian automatically cleans up registered processors and child components
   }
 }

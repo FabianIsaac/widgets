@@ -3,5 +3,11 @@
     "openDailyNote": "Open daily note",
     "openWeeklyNote": "Open weekly note",
     "noPeriodicPlugin": "Daily Notes or Periodic Notes plugin is required"
+  },
+  "settings": {
+    "title": "Obsidian Widgets",
+    "language": "Language",
+    "languageDesc": "Language used for widget labels. 'Auto' follows Obsidian's language setting.",
+    "languageAuto": "Auto (follow Obsidian)"
   }
 }

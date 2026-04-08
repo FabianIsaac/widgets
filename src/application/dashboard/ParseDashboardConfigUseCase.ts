@@ -1,5 +1,5 @@
-import { DashboardConfig } from "../../domain/widget/value-objects/DashboardConfig";
-import { IWidgetParser } from "../../domain/widget/ports/IWidgetParser";
+import { DashboardConfig } from "@domain/widget/value-objects/DashboardConfig";
+import { IWidgetParser } from "@domain/widget/ports/IWidgetParser";
 
 /**
  * Application use case: parse raw YAML source from a code block into a

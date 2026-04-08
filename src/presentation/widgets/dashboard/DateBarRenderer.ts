@@ -1,7 +1,7 @@
 import { App, setIcon } from "obsidian";
-import { CalendarDate } from "../../../domain/calendar/value-objects/CalendarDate";
-import { OpenPeriodicNoteUseCase } from "../../../application/dashboard/OpenPeriodicNoteUseCase";
-import { t } from "../../../infrastructure/i18n/i18n";
+import { CalendarDate } from "@domain/calendar/value-objects/CalendarDate";
+import { OpenPeriodicNoteUseCase } from "@application/dashboard/OpenPeriodicNoteUseCase";
+import { t } from "@infrastructure/i18n/i18n";
 
 /**
  * Presentation: renders Row 2 of the dashboard widget — the date bar.

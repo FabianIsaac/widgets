@@ -12,7 +12,13 @@
     "strictNullChecks": true,
     "strict": true,
     "lib": ["DOM", "ES2018"],
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@domain/*": ["src/domain/*"],
+      "@application/*": ["src/application/*"],
+      "@infrastructure/*": ["src/infrastructure/*"],
+      "@presentation/*": ["src/presentation/*"]
+    }
   },
   "include": ["src/**/*.ts"]
 }

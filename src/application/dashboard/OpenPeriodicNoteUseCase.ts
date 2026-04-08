@@ -1,4 +1,4 @@
-import { IPeriodicNotePort } from "../../domain/calendar/ports/IPeriodicNotePort";
+import { IPeriodicNotePort } from "@domain/calendar/ports/IPeriodicNotePort";
 
 /**
  * Application use case: open a daily or weekly note for a given date.
