@@ -4,6 +4,18 @@
     "openWeeklyNote": "Open weekly note",
     "noPeriodicPlugin": "Daily Notes or Periodic Notes plugin is required"
   },
+  "daily": {
+    "week": "Week",
+    "openNote": "Today's note",
+    "openDailyNote": "Open daily note",
+    "prevDay": "Previous day",
+    "nextDay": "Next day",
+    "greetingMorning": "Good morning",
+    "greetingAfternoon": "Good afternoon",
+    "greetingEvening": "Good evening",
+    "fetchingWeather": "Loading weather…",
+    "weatherError": "Weather unavailable"
+  },
   "settings": {
     "title": "Obsidian Widgets",
     "language": "Language",

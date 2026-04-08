@@ -98,3 +98,200 @@
 .widget-dashboard__weekly-btn:active {
   background-color: var(--background-modifier-active-hover);
 }
+
+/* ============================================================
+   Obsidian Widgets — Daily Note Widget styles
+   ============================================================ */
+
+.widget-daily {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-m, 8px);
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  margin: 4px 0;
+}
+
+/* ── Top section: date card + weather card ── */
+
+.widget-daily__top {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+/* ── Date section (left column) ── */
+
+.widget-daily__date-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+/* Card with big number */
+.widget-daily__date-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s, 4px);
+  min-width: 72px;
+  line-height: 1;
+}
+
+.widget-daily__day-number {
+  font-size: 2.6em;
+  font-weight: 700;
+  color: var(--text-accent);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.widget-daily__month-abbr {
+  font-size: 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* Day name + week row */
+.widget-daily__date-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.widget-daily__day-name {
+  font-size: var(--font-ui-medium, 14px);
+  font-weight: 500;
+  color: var(--text-normal);
+  text-transform: capitalize;
+}
+
+.widget-daily__week-number {
+  font-size: var(--font-ui-small, 12px);
+  color: var(--text-faint);
+}
+
+.widget-daily__greeting {
+  font-size: var(--font-ui-small, 12px);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Weather card (right column) ── */
+
+.widget-daily__weather-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s, 4px);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.widget-daily__weather-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.widget-daily__weather-emoji {
+  font-size: 1.4em;
+  line-height: 1;
+}
+
+.widget-daily__weather-temp {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: var(--text-normal);
+  font-variant-numeric: tabular-nums;
+}
+
+.widget-daily__weather-condition {
+  font-size: var(--font-ui-small, 12px);
+  color: var(--text-muted);
+}
+
+.widget-daily__weather-details {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.widget-daily__weather-location,
+.widget-daily__weather-wind {
+  font-size: var(--font-ui-small, 12px);
+  color: var(--text-faint);
+}
+
+.widget-daily__weather-loading,
+.widget-daily__weather-error {
+  font-size: var(--font-ui-small, 12px);
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* ── Navigation row ── */
+
+.widget-daily__nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.widget-daily__nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s, 4px);
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small, 12px);
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.widget-daily__nav-btn:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+  border-color: var(--text-muted);
+}
+
+.widget-daily__open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: var(--radius-s, 4px);
+  cursor: pointer;
+  font-size: var(--font-ui-small, 12px);
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+
+.widget-daily__open-btn:hover {
+  background: var(--interactive-accent-hover);
+}

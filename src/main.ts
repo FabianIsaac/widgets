@@ -2,18 +2,23 @@ import { Plugin } from "obsidian";
 import { initI18n } from "@infrastructure/i18n/i18n";
 import { ObsidianPeriodicNoteAdapter } from "@infrastructure/obsidian/ObsidianPeriodicNoteAdapter";
 import { YamlDashboardParser } from "@infrastructure/parsers/YamlDashboardParser";
+import { YamlDailyNoteParser } from "@infrastructure/parsers/YamlDailyNoteParser";
+import { OpenMeteoWeatherAdapter } from "@infrastructure/weather/OpenMeteoWeatherAdapter";
 import { ParseDashboardConfigUseCase } from "@application/dashboard/ParseDashboardConfigUseCase";
 import { OpenPeriodicNoteUseCase } from "@application/dashboard/OpenPeriodicNoteUseCase";
+import { ParseDailyNoteConfigUseCase } from "@application/daily/ParseDailyNoteConfigUseCase";
+import { FetchWeatherUseCase } from "@application/daily/FetchWeatherUseCase";
 import { DashboardWidgetRenderer } from "@presentation/widgets/dashboard/DashboardWidgetRenderer";
+import { DailyNoteWidgetRenderer } from "@presentation/widgets/daily/DailyNoteWidgetRenderer";
 import { WidgetSettingsTab } from "@presentation/settings/WidgetSettingsTab";
 import { SettingsManager } from "@presentation/settings/SettingsManager";
 
 /**
  * Obsidian Widgets Plugin entry point.
  *
- * Registers a Markdown code block processor for each widget type.
- * Currently supported:
- *   - widget-dashboard
+ * Registered code block processors:
+ *   - widget-dashboard  → configurable icon bar + date bar
+ *   - widget-daily      → date card + weather + day navigation
  */
 export default class ObsidianWidgetsPlugin extends Plugin {
   public settingsManager!: SettingsManager;
@@ -23,28 +28,39 @@ export default class ObsidianWidgetsPlugin extends Plugin {
     this.settingsManager = new SettingsManager(this);
     await this.settingsManager.load();
 
-    // 2. Initialize i18n using the saved language preference
+    // 2. Initialize i18n with saved language preference
     await initI18n(this.settingsManager.get().language);
 
-    // 3. Wire up dependencies (manual DI)
+    // 3. Shared infrastructure
     const periodicNoteAdapter = new ObsidianPeriodicNoteAdapter(this.app);
-    const yamlParser = new YamlDashboardParser();
-    const parseUseCase = new ParseDashboardConfigUseCase(yamlParser);
     const openPeriodicNoteUseCase = new OpenPeriodicNoteUseCase(periodicNoteAdapter);
 
+    // 4. Dashboard widget
     const dashboardRenderer = new DashboardWidgetRenderer(
-      parseUseCase,
+      new ParseDashboardConfigUseCase(new YamlDashboardParser()),
       openPeriodicNoteUseCase,
       this.app
     );
 
-    // 4. Register code block processor — ctx.addChild() handles component lifecycle
     this.registerMarkdownCodeBlockProcessor(
       "widget-dashboard",
       (source, el, ctx) => dashboardRenderer.render(source, el, ctx)
     );
 
-    // 5. Register settings tab
+    // 5. Daily note widget
+    const dailyNoteRenderer = new DailyNoteWidgetRenderer(
+      new ParseDailyNoteConfigUseCase(new YamlDailyNoteParser()),
+      new FetchWeatherUseCase(new OpenMeteoWeatherAdapter()),
+      openPeriodicNoteUseCase,
+      this.app
+    );
+
+    this.registerMarkdownCodeBlockProcessor(
+      "widget-daily",
+      (source, el, ctx) => dailyNoteRenderer.render(source, el, ctx)
+    );
+
+    // 6. Settings tab
     this.addSettingTab(new WidgetSettingsTab(this.app, this));
   }
 
