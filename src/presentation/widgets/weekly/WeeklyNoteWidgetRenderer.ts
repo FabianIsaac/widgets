@@ -1,4 +1,6 @@
-import { App, MarkdownRenderChild, MarkdownPostProcessorContext, setIcon } from "obsidian";
+import { App, MarkdownRenderChild, MarkdownPostProcessorContext, TFile } from "obsidian";
+import { resolveWeatherConfig } from "@infrastructure/weather/WeatherConfigResolver";
+import { SettingsManager } from "@presentation/settings/SettingsManager";
 import { ParseWeeklyNoteConfigUseCase } from "@application/weekly/ParseWeeklyNoteConfigUseCase";
 import { FetchWeeklyForecastUseCase } from "@application/weekly/FetchWeeklyForecastUseCase";
 import { OpenPeriodicNoteUseCase } from "@application/dashboard/OpenPeriodicNoteUseCase";
@@ -24,6 +26,21 @@ function getMondayOfWeek(date: Date): Date {
   const diff = day === 0 ? -6 : 1 - day;
   d.setDate(d.getDate() + diff);
   return d;
+}
+
+/**
+ * Returns the Monday of a specific ISO week number and year.
+ * ISO 8601: week 1 is the week containing the first Thursday of the year.
+ */
+function getMondayOfISOWeek(week: number, year: number): Date {
+  // Jan 4 is always in week 1
+  const jan4 = new Date(year, 0, 4);
+  const jan4Day = jan4.getDay() || 7; // convert Sun=0 to 7
+  const week1Monday = new Date(jan4);
+  week1Monday.setDate(jan4.getDate() - (jan4Day - 1));
+  const monday = new Date(week1Monday);
+  monday.setDate(week1Monday.getDate() + (week - 1) * 7);
+  return monday;
 }
 
 /** True if two Dates represent the same calendar day */
@@ -63,8 +80,8 @@ function monthName(date: Date, locale: string): string {
 
 /**
  * Renders the widget header:
- *   [📅 Semana 15]
- *   Abril 2026          (or "Mar · Abr 2026" when the week spans two months)
+ *   SEMANA 15           ← small label (not clickable)
+ *   Abril  2026         ← month (clickable → monthly note) + year (clickable → yearly note)
  */
 function renderWeekHeader(
   container: HTMLElement,
@@ -77,28 +94,42 @@ function renderWeekHeader(
 
   const weekNum = getISOWeekNumber(monday);
 
-  // Week number row — clickable to open weekly note
-  const weekRow = container.createDiv({ cls: "widget-weekly__week-row" });
-  const weekBtn = weekRow.createEl("button", { cls: "widget-weekly__week-btn" });
-  setIcon(weekBtn.createSpan({ cls: "widget-weekly__week-icon" }), "calendar-range");
-  weekBtn.createEl("span", { text: `${t("weekly.week")} ${weekNum}` });
-  weekBtn.setAttribute("aria-label", t("weekly.openNote"));
-  weekBtn.addEventListener("click", (e: MouseEvent) => {
-    e.preventDefault();
-    openPeriodicNoteUseCase.openWeekly(monday);
+  // Representative date for monthly/yearly navigation: use Sunday's month when
+  // the week spans two months, so the heading shows the ending month.
+  const refDate = monday.getMonth() === sunday.getMonth() ? monday : sunday;
+
+  const header = container.createDiv({ cls: "widget-weekly__header" });
+
+  header.createEl("span", {
+    cls: "widget-weekly__week-label",
+    text: `${t("weekly.week")} ${weekNum}`,
   });
 
-  // Month + year row
-  const monthYearRow = container.createDiv({ cls: "widget-weekly__month-year" });
-  if (monday.getMonth() === sunday.getMonth()) {
-    monthYearRow.setText(`${monthName(monday, locale)} ${monday.getFullYear()}`);
-  } else {
-    // Week spans two months
-    const m1 = monthAbbr(monday, locale);
-    const m2 = monthAbbr(sunday, locale);
-    const year = sunday.getFullYear();
-    monthYearRow.setText(`${m1} · ${m2} ${year}`);
-  }
+  const headingRow = header.createDiv({ cls: "widget-weekly__heading-row" });
+
+  // Month — opens monthly note
+  const monthEl = headingRow.createEl("span", {
+    cls: "widget-weekly__month-heading",
+    text: monday.getMonth() === sunday.getMonth()
+      ? monthName(monday, locale)
+      : `${monthAbbr(monday, locale)} · ${monthAbbr(sunday, locale)}`,
+  });
+  monthEl.setAttribute("title", t("weekly.openMonthlyNote"));
+  monthEl.addEventListener("click", (e: MouseEvent) => {
+    e.preventDefault();
+    openPeriodicNoteUseCase.openMonthly(refDate);
+  });
+
+  // Year — opens yearly note
+  const yearEl = headingRow.createEl("span", {
+    cls: "widget-weekly__year-heading",
+    text: String(refDate.getFullYear()),
+  });
+  yearEl.setAttribute("title", t("weekly.openYearlyNote"));
+  yearEl.addEventListener("click", (e: MouseEvent) => {
+    e.preventDefault();
+    openPeriodicNoteUseCase.openYearly(refDate);
+  });
 }
 
 /**
@@ -120,8 +151,11 @@ function renderDayColumn(
   const locale = getLocale();
   const isToday = isSameDay(date, new Date());
 
+  const day = date.getDay(); // 0=Sun, 6=Sat
+  const isWeekend = day === 0 || day === 6;
+
   const col = row.createDiv({
-    cls: ["widget-weekly__day-col", isToday ? "is-today" : ""].filter(Boolean).join(" "),
+    cls: ["widget-weekly__day-col", isToday ? "is-today" : "", isWeekend ? "is-weekend" : ""].filter(Boolean).join(" "),
   });
 
   // Day abbreviation
@@ -164,16 +198,55 @@ function renderDayColumn(
   });
 }
 
+/** Formats a Date as "YYYY-MM-DD" in local time */
+function toLocalISODate(d: Date): string {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+// ── Weather cache helpers ─────────────────────────────────────────────────────
+
+const FORECAST_CACHE_KEY = "widget_weekly_weather_v2";
+
+/** Reads cached forecast from frontmatter if stored for the same week monday. Returns null if missing or stale. */
+function readForecastCache(app: App, file: TFile, mondayStr: string): DailyForecast[] | null {
+  const fm = app.metadataCache.getFileCache(file)?.frontmatter;
+  const cached = fm?.[FORECAST_CACHE_KEY];
+  if (!cached || cached.weekMonday !== mondayStr || !Array.isArray(cached.forecasts)) return null;
+  return (cached.forecasts as { date: string; weatherCode: number; maxTemp: number; minTemp: number }[]).map(
+    (f) => ({ date: new Date(f.date), weatherCode: f.weatherCode, maxTemp: f.maxTemp, minTemp: f.minTemp })
+  );
+}
+
+/** Saves the 7-day forecast to the note's frontmatter, keyed by the week's monday. */
+async function writeForecastCache(app: App, file: TFile, forecasts: DailyForecast[], mondayStr: string): Promise<void> {
+  await app.fileManager.processFrontMatter(file, (fm) => {
+    fm[FORECAST_CACHE_KEY] = {
+      weekMonday: mondayStr,
+      forecasts: forecasts.map((f) => ({
+        date: f.date.toISOString().slice(0, 10),
+        weatherCode: f.weatherCode,
+        maxTemp: f.maxTemp,
+        minTemp: f.minTemp,
+      })),
+    };
+  });
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 class WeeklyNoteWidgetComponent extends MarkdownRenderChild {
   constructor(
     containerEl: HTMLElement,
     private readonly source: string,
+    private readonly sourcePath: string,
     private readonly parseUseCase: ParseWeeklyNoteConfigUseCase,
     private readonly fetchForecastUseCase: FetchWeeklyForecastUseCase,
     private readonly openPeriodicNoteUseCase: OpenPeriodicNoteUseCase,
-    private readonly _app: App
+    private readonly app: App,
+    private readonly settingsManager: SettingsManager
   ) {
     super(containerEl);
   }
@@ -181,14 +254,15 @@ class WeeklyNoteWidgetComponent extends MarkdownRenderChild {
   onload(): void {
     const config = this.parseUseCase.execute(this.source);
     const container = this.containerEl.createDiv({ cls: "widget-weekly" });
-    const today = new Date();
-    const monday = getMondayOfWeek(today);
-    const hasWeather = !!config.weather;
 
-    // Week number + month/year header
+    const today = new Date();
+    const monday = (config.week != null)
+      ? getMondayOfISOWeek(config.week, config.year ?? today.getFullYear())
+      : getMondayOfWeek(today);
+    const weatherConfig = resolveWeatherConfig(config.weather, this.settingsManager.get());
+
     renderWeekHeader(container, monday, this.openPeriodicNoteUseCase);
 
-    // 7-day grid — render immediately with placeholders for weather
     const grid = container.createDiv({ cls: "widget-weekly__days-grid" });
     const weekDates = Array.from({ length: 7 }, (_, i) => {
       const d = new Date(monday);
@@ -196,23 +270,39 @@ class WeeklyNoteWidgetComponent extends MarkdownRenderChild {
       return d;
     });
 
-    // Initial render with no forecast data
+    if (!weatherConfig) {
+      weekDates.forEach((date) =>
+        renderDayColumn(grid, date, undefined, false, this.openPeriodicNoteUseCase)
+      );
+      return;
+    }
+
+    // Initial render with placeholders
     weekDates.forEach((date) =>
-      renderDayColumn(grid, date, undefined, hasWeather, this.openPeriodicNoteUseCase)
+      renderDayColumn(grid, date, undefined, true, this.openPeriodicNoteUseCase)
     );
 
-    // If weather configured: fetch and re-render the grid
-    if (config.weather) {
+    const file = this.app.vault.getAbstractFileByPath(this.sourcePath) as TFile;
+    const mondayStr = toLocalISODate(monday);
+    const cached = readForecastCache(this.app, file, mondayStr);
+
+    if (cached) {
+      grid.empty();
+      weekDates.forEach((date, i) =>
+        renderDayColumn(grid, date, cached[i], true, this.openPeriodicNoteUseCase)
+      );
+    } else {
       this.fetchForecastUseCase
-        .execute(config.weather, monday)
-        .then((forecasts) => {
+        .execute(weatherConfig, monday)
+        .then(async (forecasts) => {
           grid.empty();
           weekDates.forEach((date, i) =>
             renderDayColumn(grid, date, forecasts[i], true, this.openPeriodicNoteUseCase)
           );
+          await writeForecastCache(this.app, file, forecasts, mondayStr);
         })
         .catch(() => {
-          // Leave weather slots showing "—" / "…" on error
+          // Leave placeholders showing "—" / "…" on error
         });
     }
   }
@@ -225,7 +315,8 @@ export class WeeklyNoteWidgetRenderer {
     private readonly parseUseCase: ParseWeeklyNoteConfigUseCase,
     private readonly fetchForecastUseCase: FetchWeeklyForecastUseCase,
     private readonly openPeriodicNoteUseCase: OpenPeriodicNoteUseCase,
-    private readonly app: App
+    private readonly app: App,
+    private readonly settingsManager: SettingsManager
   ) {}
 
   render(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext): void {
@@ -233,10 +324,12 @@ export class WeeklyNoteWidgetRenderer {
       new WeeklyNoteWidgetComponent(
         el,
         source,
+        ctx.sourcePath,
         this.parseUseCase,
         this.fetchForecastUseCase,
         this.openPeriodicNoteUseCase,
-        this.app
+        this.app,
+        this.settingsManager
       )
     );
   }

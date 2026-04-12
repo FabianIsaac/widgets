@@ -1,4 +1,4 @@
-import { App, setIcon } from "obsidian";
+import { setIcon } from "obsidian";
 import { CalendarDate } from "@domain/calendar/value-objects/CalendarDate";
 import { OpenPeriodicNoteUseCase } from "@application/dashboard/OpenPeriodicNoteUseCase";
 import { t } from "@infrastructure/i18n/i18n";
@@ -14,10 +14,12 @@ import { t } from "@infrastructure/i18n/i18n";
 export function renderDateBar(
   container: HTMLElement,
   calendarDate: CalendarDate,
-  app: App,
   openPeriodicNoteUseCase: OpenPeriodicNoteUseCase
 ): void {
   const row = container.createDiv({ cls: "widget-dashboard__date-bar" });
+
+  // --- Accent dot ---
+  row.createEl("span", { cls: "widget-dashboard__date-dot" });
 
   // --- Date text (opens daily note) ---
   const dateText = row.createEl("span", {
@@ -31,8 +33,8 @@ export function renderDateBar(
     openPeriodicNoteUseCase.openDaily(calendarDate.raw);
   });
 
-  // --- Weekly note icon button ---
-  const weeklyBtn = row.createEl("button", {
+  // --- Weekly note icon ---
+  const weeklyBtn = row.createEl("div", {
     cls: "widget-dashboard__weekly-btn",
   });
   setIcon(weeklyBtn, "calendar-days");

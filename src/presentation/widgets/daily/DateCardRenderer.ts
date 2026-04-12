@@ -1,15 +1,6 @@
 import { CalendarDate } from "@domain/calendar/value-objects/CalendarDate";
+import { OpenPeriodicNoteUseCase } from "@application/dashboard/OpenPeriodicNoteUseCase";
 import { t, getLocale } from "@infrastructure/i18n/i18n";
-
-/**
- * Returns the ISO week number for a given date (ISO 8601).
- */
-function getISOWeekNumber(date: Date): number {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil(((d.valueOf() - yearStart.valueOf()) / 86_400_000 + 1) / 7);
-}
 
 /**
  * Returns a greeting string based on the current hour.
@@ -37,45 +28,45 @@ function getMonthAbbr(date: Date, locale: string): string {
 }
 
 /**
- * Renders the left date card:
- *   ┌─────────────────┐
- *   │   07            │  ← big day number
- *   │   ABR           │  ← 3-letter month abbr
- *   └─────────────────┘
- *   Lunes • Semana 15    ← day name + week number
- *   Buenos días          ← greeting
+ * Renders the date section in a horizontal layout:
+ *
+ *   07      Lunes           ← day name clicks → weekly note
+ *   ABR     Buenos días     ← month abbr clicks → monthly note
  */
-export function renderDateCard(container: HTMLElement, calendarDate: CalendarDate, name?: string): void {
-  const wrapper = container.createDiv({ cls: "widget-daily__date-section" });
+export function renderDateCard(
+  container: HTMLElement,
+  calendarDate: CalendarDate,
+  openPeriodicNoteUseCase: OpenPeriodicNoteUseCase,
+  name?: string
+): void {
+  const section = container.createDiv({ cls: "widget-daily__date" });
 
-  // Card with big number + month abbreviation
-  const card = wrapper.createDiv({ cls: "widget-daily__date-card" });
+  // Left column: big day number + month abbreviation (clickable → monthly note)
+  const left = section.createDiv({ cls: "widget-daily__date-left" });
 
-  card.createEl("span", {
+  left.createEl("span", {
     cls: "widget-daily__day-number",
     text: String(calendarDate.dayNumber).padStart(2, "0"),
   });
 
-  card.createEl("span", {
-    cls: "widget-daily__month-abbr",
+  const monthEl = left.createEl("span", {
+    cls: "widget-daily__month-abbr widget-daily__month-abbr--link",
     text: getMonthAbbr(calendarDate.raw, getLocale()),
   });
+  monthEl.setAttribute("title", t("daily.openMonthlyNote"));
+  monthEl.addEventListener("click", () => openPeriodicNoteUseCase.openMonthly(calendarDate.raw));
 
-  // Day name + week number row
-  const meta = wrapper.createDiv({ cls: "widget-daily__date-meta" });
+  // Right column: day name (clickable → weekly note) + greeting
+  const right = section.createDiv({ cls: "widget-daily__date-right" });
 
-  meta.createEl("span", {
-    cls: "widget-daily__day-name",
+  const dayNameEl = right.createEl("span", {
+    cls: "widget-daily__day-name widget-daily__day-name--link",
     text: calendarDate.dayName,
   });
+  dayNameEl.setAttribute("title", t("daily.openWeeklyNote"));
+  dayNameEl.addEventListener("click", () => openPeriodicNoteUseCase.openWeekly(calendarDate.raw));
 
-  meta.createEl("span", {
-    cls: "widget-daily__week-number",
-    text: `${t("daily.week")} ${getISOWeekNumber(calendarDate.raw)}`,
-  });
-
-  // Greeting (with optional name)
-  wrapper.createEl("span", {
+  right.createEl("span", {
     cls: "widget-daily__greeting",
     text: getGreeting(name),
   });

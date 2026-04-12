@@ -1,6 +1,6 @@
 {
-  "id": "obsidian-widgets",
-  "name": "Obsidian Widgets",
+  "id": "widgets",
+  "name": "Widgets",
   "version": "1.0.0",
   "minAppVersion": "1.4.0",
   "description": "Render code blocks as interactive widgets inside your notes.",

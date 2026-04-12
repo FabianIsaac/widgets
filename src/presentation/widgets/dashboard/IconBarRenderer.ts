@@ -16,7 +16,7 @@ export function renderIconBar(
   if (icons.length === 0) return;
 
   for (const iconCfg of icons) {
-    const btn = row.createEl("button", {
+    const btn = row.createEl("div", {
       cls: "widget-dashboard__icon-btn",
     });
 

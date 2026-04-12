@@ -37,7 +37,7 @@ export function renderWeatherData(
   const condition = getWeatherCondition(data.weatherCode, getLocale());
   const unitSymbol = data.units === "fahrenheit" ? "°F" : "°C";
 
-  // Main row: emoji + temperature
+  // Main row: emoji + min/max temperature
   const mainRow = container.createDiv({ cls: "widget-daily__weather-main" });
 
   mainRow.createEl("span", {
@@ -45,9 +45,18 @@ export function renderWeatherData(
     text: condition.emoji,
   });
 
-  mainRow.createEl("span", {
-    cls: "widget-daily__weather-temp",
-    text: `${data.temperature}${unitSymbol}`,
+  const tempEl = mainRow.createEl("span", { cls: "widget-daily__weather-temp" });
+  tempEl.createEl("span", {
+    cls: "widget-daily__weather-temp-min",
+    text: `${data.tempMin}°`,
+  });
+  tempEl.createEl("span", {
+    cls: "widget-daily__weather-temp-sep",
+    text: " / ",
+  });
+  tempEl.createEl("span", {
+    cls: "widget-daily__weather-temp-max",
+    text: `${data.tempMax}${unitSymbol}`,
   });
 
   // Condition label

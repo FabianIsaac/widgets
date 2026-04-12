@@ -21,6 +21,17 @@ export class YamlWeeklyNoteParser implements IWidgetParser<WeeklyNoteConfig> {
 
   private validate(raw: Record<string, unknown>): WeeklyNoteConfig {
     const config: WeeklyNoteConfig = {};
+
+    const week = Number(raw["week"]);
+    if (!isNaN(week) && week >= 1 && week <= 53) {
+      config.week = Math.floor(week);
+    }
+
+    const year = Number(raw["year"]);
+    if (!isNaN(year) && year >= 2000) {
+      config.year = Math.floor(year);
+    }
+
     const w = raw["weather"];
     if (w && typeof w === "object" && !Array.isArray(w)) {
       const weather = w as Record<string, unknown>;

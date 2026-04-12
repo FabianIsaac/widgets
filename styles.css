@@ -1,4 +1,13 @@
 /* ============================================================
+   Obsidian Widgets — Shared animations
+   ============================================================ */
+
+@keyframes widget-dot-breathe {
+  0%, 100% { transform: scale(1);   opacity: 1;   }
+  50%       { transform: scale(1.5); opacity: 0.5; }
+}
+
+/* ============================================================
    Obsidian Widgets — Dashboard Widget styles
    ============================================================ */
 
@@ -29,17 +38,14 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  padding: 0;
-  background: transparent;
-  border: none;
   border-radius: var(--radius-s, 4px);
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--text-accent);
   transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .widget-dashboard__icon-btn:hover {
-  color: var(--text-normal);
+  color: var(--text-accent);
   background-color: var(--background-modifier-hover);
 }
 
@@ -53,25 +59,33 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 6px;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 10px;
+}
+
+.widget-dashboard__date-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--text-accent);
+  flex-shrink: 0;
+  animation: widget-dot-breathe 3s ease-in-out infinite;
 }
 
 .widget-dashboard__date-text {
-  font-size: var(--font-ui-medium, 15px);
-  font-weight: 500;
+  font-size: 1.4rem;
+  font-weight: 600;
   color: var(--text-normal);
   cursor: pointer;
   border-radius: var(--radius-s, 4px);
-  padding: 2px 4px;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: color 0.15s ease;
   text-transform: capitalize;
 }
 
 .widget-dashboard__date-text:hover {
   color: var(--text-accent);
-  background-color: var(--background-modifier-hover);
-  text-decoration: none;
 }
 
 .widget-dashboard__weekly-btn {
@@ -80,9 +94,6 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  padding: 0;
-  background: transparent;
-  border: none;
   border-radius: var(--radius-s, 4px);
   cursor: pointer;
   color: var(--text-muted);
@@ -106,7 +117,6 @@
 .widget-daily {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   padding: 14px 16px;
   border-radius: var(--radius-m, 8px);
   background-color: var(--background-secondary);
@@ -114,40 +124,37 @@
   margin: 4px 0;
 }
 
-/* ── Top section: date card + weather card ── */
+/* ── Main row: date (left) + weather (top-right) ── */
 
-.widget-daily__top {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 14px;
-  align-items: start;
-}
-
-/* ── Date section (left column) ── */
-
-.widget-daily__date-section {
+.widget-daily__row {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-direction: row;
   align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-/* Card with big number */
-.widget-daily__date-card {
+/* ── Date: horizontal layout ── */
+
+.widget-daily__date {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 14px;
+}
+
+/* Left column: big number + month abbreviation */
+.widget-daily__date-left {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
-  background: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s, 4px);
-  min-width: 72px;
   line-height: 1;
+  gap: 2px;
 }
 
 .widget-daily__day-number {
-  font-size: 2.6em;
+  font-size: 3.5em;
   font-weight: 700;
   color: var(--text-accent);
   line-height: 1;
@@ -155,31 +162,47 @@
 }
 
 .widget-daily__month-abbr {
-  font-size: 0.8em;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-size: 1.1em;
+  font-weight: 700;
+  letter-spacing: 0.35em;
   color: var(--text-muted);
   text-transform: uppercase;
-  margin-top: 2px;
+  display: block;
+  text-align: center;
 }
 
-/* Day name + week row */
-.widget-daily__date-meta {
+.widget-daily__month-abbr--link {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.widget-daily__month-abbr--link:hover {
+  color: var(--text-accent);
+}
+
+/* Right column: day name (large) + greeting */
+.widget-daily__date-right {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  justify-content: center;
+  gap: 4px;
 }
 
 .widget-daily__day-name {
-  font-size: var(--font-ui-medium, 14px);
-  font-weight: 500;
+  font-size: 1.8em;
+  font-weight: 700;
   color: var(--text-normal);
   text-transform: capitalize;
+  line-height: 1.1;
 }
 
-.widget-daily__week-number {
-  font-size: var(--font-ui-small, 12px);
-  color: var(--text-faint);
+.widget-daily__day-name--link {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.widget-daily__day-name--link:hover {
+  color: var(--text-accent);
 }
 
 .widget-daily__greeting {
@@ -188,50 +211,58 @@
   font-style: italic;
 }
 
-/* ── Weather card (right column) ── */
+/* ── Weather — no frame, right-aligned ── */
 
-.widget-daily__weather-card {
+.widget-daily__weather {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 14px;
-  background: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s, 4px);
-  height: 100%;
-  box-sizing: border-box;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
 .widget-daily__weather-main {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .widget-daily__weather-emoji {
-  font-size: 1.4em;
+  font-size: 1.3em;
   line-height: 1;
 }
 
 .widget-daily__weather-temp {
-  font-size: 1.3em;
+  font-size: 1.2em;
   font-weight: 600;
-  color: var(--text-normal);
   font-variant-numeric: tabular-nums;
+}
+
+.widget-daily__weather-temp-min {
+  color: var(--text-muted);
+}
+
+.widget-daily__weather-temp-sep {
+  color: var(--text-faint);
+}
+
+.widget-daily__weather-temp-max {
+  color: var(--text-normal);
 }
 
 .widget-daily__weather-condition {
   font-size: var(--font-ui-small, 12px);
   color: var(--text-muted);
+  text-align: right;
 }
 
 .widget-daily__weather-details {
   display: flex;
   flex-direction: row;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
-  margin-top: 2px;
+  justify-content: flex-end;
 }
 
 .widget-daily__weather-location,
@@ -247,53 +278,217 @@
   font-style: italic;
 }
 
-/* ── Navigation row ── */
+/* ── Gratitude section ── */
 
-.widget-daily__nav {
+.widget-daily__gratitude {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 12px;
+  margin-top: 10px;
+}
+
+.widget-daily__gratitude-title {
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+
+.widget-daily__gratitude-input-row {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.widget-daily__nav-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: transparent;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s, 4px);
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: var(--font-ui-small, 12px);
-  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.widget-daily__nav-btn:hover {
-  color: var(--text-normal);
-  background: var(--background-modifier-hover);
-  border-color: var(--text-muted);
-}
-
-.widget-daily__open-btn {
-  display: inline-flex;
-  align-items: center;
   gap: 6px;
-  padding: 5px 14px;
-  background: var(--interactive-accent);
-  color: var(--text-on-accent);
+}
+
+.widget-daily__gratitude-input {
+  flex: 1;
+  background: transparent;
   border: none;
+  border-bottom: 1px solid var(--background-modifier-border);
+  border-radius: 0;
+  padding: 2px 0;
+  font-size: var(--font-ui-small, 13px);
+  color: var(--text-normal);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.widget-daily__gratitude-input::placeholder {
+  color: var(--text-faint);
+}
+
+.widget-daily__gratitude-input:focus {
+  border-bottom-color: var(--text-accent);
+}
+
+/* ============================================================
+   Obsidian Widgets — Monthly Note Widget styles
+   ============================================================ */
+
+.widget-monthly {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-m, 8px);
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  margin: 4px 0;
+}
+
+/* ── Header: month name + year ── */
+
+.widget-monthly__header {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.widget-monthly__month-name {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: var(--text-normal);
+  text-transform: capitalize;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.widget-monthly__month-name:hover {
+  color: var(--text-accent);
+}
+
+.widget-monthly__year {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.widget-monthly__year:hover {
+  color: var(--text-accent);
+}
+
+/* ── Grid ── */
+
+.widget-monthly__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Header row + each week row share the same column layout */
+.widget-monthly__header-row,
+.widget-monthly__week-row {
+  display: grid;
+  grid-template-columns: 28px repeat(7, 1fr);
+  gap: 2px;
+  align-items: center;
+}
+
+/* Week number cell */
+.widget-monthly__week-cell {
+  font-size: 0.65em;
+  font-weight: 600;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  text-align: center;
+  cursor: pointer;
+  padding: 4px 0;
+  border-radius: var(--radius-s, 4px);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.widget-monthly__week-cell:hover {
+  color: var(--text-accent);
+  background-color: var(--background-modifier-hover);
+}
+
+.widget-monthly__week-cell--header {
+  cursor: default;
+  pointer-events: none;
+}
+
+.widget-monthly__week-cell--header:hover {
+  color: var(--text-faint);
+  background-color: transparent;
+}
+
+/* Day column header: LUN, MAR… */
+.widget-monthly__day-header {
+  font-size: 0.65em;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  padding-bottom: 4px;
+}
+
+.widget-monthly__day-header.is-weekend {
+  color: var(--text-faint);
+}
+
+/* Day cell */
+.widget-monthly__day-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
   border-radius: var(--radius-s, 4px);
   cursor: pointer;
-  font-size: var(--font-ui-small, 12px);
-  font-weight: 500;
+  border: 1px solid transparent;
   transition: background-color 0.15s ease;
 }
 
-.widget-daily__open-btn:hover {
-  background: var(--interactive-accent-hover);
+.widget-monthly__day-cell:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.widget-monthly__day-num {
+  font-size: 0.85em;
+  font-weight: 500;
+  color: var(--text-normal);
+  line-height: 1;
+}
+
+/* Days outside current month — empty, no pointer */
+.widget-monthly__day-cell.is-outside {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Days with no note — number shown tinted */
+.widget-monthly__day-cell.is-no-note .widget-monthly__day-num {
+  color: var(--text-faint);
+}
+
+/* Weekend days with a note — soft red */
+.widget-monthly__day-cell.is-weekend .widget-monthly__day-num {
+  color: color-mix(in srgb, var(--color-red) 65%, var(--text-normal));
+}
+
+/* Weekend days without a note — same faint as any no-note weekday */
+.widget-monthly__day-cell.is-weekend.is-no-note .widget-monthly__day-num {
+  color: var(--text-faint);
+}
+
+/* Today */
+.widget-monthly__day-cell.is-today {
+  background-color: var(--background-modifier-active-hover);
+  border-color: var(--interactive-accent);
+}
+
+.widget-monthly__day-cell.is-today .widget-monthly__day-num {
+  color: var(--interactive-accent);
+  font-weight: 700;
 }
 
 /* ============================================================
@@ -311,43 +506,53 @@
   margin: 4px 0;
 }
 
-/* ── Header: week number + month/year ── */
+/* ── Header: week label + month/year heading ── */
 
-.widget-weekly__week-row {
+.widget-weekly__header {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 0;
+  padding: 2px 0;
 }
 
-.widget-weekly__week-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 8px 2px 4px;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-s, 4px);
-  cursor: pointer;
-  color: var(--text-accent);
-  font-size: var(--font-ui-medium, 14px);
+.widget-weekly__week-label {
+  font-size: 0.7em;
   font-weight: 600;
-  transition: background-color 0.15s ease;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
 }
 
-.widget-weekly__week-btn:hover {
-  background: var(--background-modifier-hover);
+.widget-weekly__heading-row {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
 }
 
-.widget-weekly__week-icon {
-  display: inline-flex;
-  align-items: center;
+.widget-weekly__month-heading {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: var(--text-normal);
+  text-transform: capitalize;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.widget-weekly__month-heading:hover {
   color: var(--text-accent);
 }
 
-.widget-weekly__month-year {
-  font-size: var(--font-ui-small, 12px);
+.widget-weekly__year-heading {
+  font-size: 1.5em;
+  font-weight: 700;
   color: var(--text-muted);
-  padding-left: 4px;
-  text-transform: capitalize;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.widget-weekly__year-heading:hover {
+  color: var(--text-accent);
 }
 
 /* ── 7-day grid ── */
@@ -373,6 +578,12 @@
 
 .widget-weekly__day-col:hover {
   background: var(--background-modifier-hover);
+}
+
+/* Weekend columns */
+.widget-weekly__day-col.is-weekend .widget-weekly__day-abbr,
+.widget-weekly__day-col.is-weekend .widget-weekly__day-num {
+  color: var(--text-muted);
 }
 
 /* Today column highlight */
@@ -425,4 +636,69 @@
 
 .widget-weekly__day-temp--loading {
   color: var(--text-faint);
+}
+
+/* ============================================================
+   Obsidian Widgets — Monthly calendar tag-color dots
+   ============================================================ */
+
+.widget-monthly__day-dots {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.widget-monthly__day-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Tag legend ── */
+
+.widget-monthly__legend {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 10px;
+  margin-top: 2px;
+}
+
+.widget-monthly__legend-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+
+.widget-monthly__legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.widget-monthly__legend-label {
+  font-size: var(--font-ui-small, 12px);
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   Obsidian Widgets — Settings color swatch
+   ============================================================ */
+
+.widget-settings__color-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--swatch-color, var(--text-muted));
+  flex-shrink: 0;
+  align-self: center;
+  margin-left: 4px;
 }

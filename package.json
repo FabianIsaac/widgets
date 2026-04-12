@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
+    "package": "npm run build && mkdir -p dist && cp main.js manifest.json styles.css dist/",
     "build": "tsc --noEmit --skipLibCheck && node esbuild.config.mjs production"
   },
   "keywords": ["obsidian", "obsidian-plugin", "widgets", "dashboard"],

@@ -31,14 +31,17 @@ export class OpenMeteoForecastAdapter implements IWeatherForecastPort {
   ): Promise<DailyForecast[]> {
     const tempUnit = config.units === "fahrenheit" ? "fahrenheit" : "celsius";
 
+    const sunday = new Date(weekMonday);
+    sunday.setDate(weekMonday.getDate() + 6);
+
     const params = new URLSearchParams({
       latitude: config.latitude.toString(),
       longitude: config.longitude.toString(),
       daily: "weather_code,temperature_2m_max,temperature_2m_min",
       temperature_unit: tempUnit,
       timezone: "auto",
-      past_days: "6",
-      forecast_days: "7",
+      start_date: toLocalISODate(weekMonday),
+      end_date: toLocalISODate(sunday),
     });
 
     const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;

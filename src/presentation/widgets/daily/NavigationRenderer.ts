@@ -36,8 +36,8 @@ export function renderNavigation(
   const yesterday = shiftDate(today, -1);
   const tomorrow = shiftDate(today, 1);
 
-  // ← Yesterday button
-  const prevBtn = nav.createEl("button", { cls: "widget-daily__nav-btn" });
+  // ← Yesterday
+  const prevBtn = nav.createEl("div", { cls: "widget-daily__nav-btn" });
   setIcon(prevBtn.createSpan(), "arrow-left");
   prevBtn.createEl("span", {
     text: `${yesterday.getDate()} ${shortMonth(yesterday)}`,
@@ -49,7 +49,7 @@ export function renderNavigation(
   });
 
   // Open today's note (primary action)
-  const openBtn = nav.createEl("button", { cls: "widget-daily__open-btn" });
+  const openBtn = nav.createEl("div", { cls: "widget-daily__open-btn" });
   setIcon(openBtn.createSpan(), "book-open");
   openBtn.createEl("span", { text: t("daily.openNote") });
   openBtn.setAttribute("aria-label", t("daily.openDailyNote"));
@@ -58,8 +58,8 @@ export function renderNavigation(
     openPeriodicNoteUseCase.openDaily(today);
   });
 
-  // Tomorrow → button
-  const nextBtn = nav.createEl("button", { cls: "widget-daily__nav-btn" });
+  // Tomorrow →
+  const nextBtn = nav.createEl("div", { cls: "widget-daily__nav-btn" });
   nextBtn.createEl("span", {
     text: `${tomorrow.getDate()} ${shortMonth(tomorrow)}`,
   });

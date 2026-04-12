@@ -13,12 +13,21 @@
     "greetingMorning": "Good morning",
     "greetingAfternoon": "Good afternoon",
     "greetingEvening": "Good evening",
+    "openWeeklyNote": "Open weekly note",
+    "openMonthlyNote": "Open monthly note",
     "fetchingWeather": "Loading weather…",
     "weatherError": "Weather unavailable"
+  },
+  "monthly": {
+    "openYearlyNote": "Open yearly note",
+    "openWeeklyNote": "Open weekly note",
+    "openDailyNote": "Open daily note"
   },
   "weekly": {
     "week": "Week",
     "openNote": "Open weekly note",
+    "openMonthlyNote": "Open monthly note",
+    "openYearlyNote": "Open yearly note",
     "fetchingWeather": "Loading forecast…",
     "weatherError": "Forecast unavailable"
   },
@@ -26,6 +35,23 @@
     "title": "Obsidian Widgets",
     "language": "Language",
     "languageDesc": "Language used for widget labels. 'Auto' follows Obsidian's language setting.",
-    "languageAuto": "Auto (follow Obsidian)"
+    "languageAuto": "Auto (follow Obsidian)",
+    "weatherHeading": "Default weather location",
+    "latitude": "Latitude",
+    "latitudeDesc": "Default latitude used when a widget does not specify its own.",
+    "longitude": "Longitude",
+    "longitudeDesc": "Default longitude used when a widget does not specify its own.",
+    "location": "Location name",
+    "locationDesc": "Display name shown in the weather card (optional).",
+    "units": "Temperature units",
+    "unitsDesc": "Default unit used when a widget does not specify its own.",
+    "tagColorsHeading": "Tag colors (monthly calendar)",
+    "tagColorsDesc": "Map note tags to colored dots shown under each day in the monthly widget.",
+    "tagColorsAdd": "Add tag color",
+    "tagColorsRemove": "Remove",
+    "linkColorsHeading": "Link colors (monthly calendar)",
+    "linkColorsDesc": "Map note links to colored dots shown under each day in the monthly widget. Enter the filename without extension.",
+    "linkColorsAdd": "Add link color",
+    "linkColorsRemove": "Remove"
   }
 }

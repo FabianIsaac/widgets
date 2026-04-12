@@ -39,4 +39,13 @@ export class CalendarDate {
   static today(locale: string): CalendarDate {
     return new CalendarDate(new Date(), locale);
   }
+
+  /**
+   * Factory: creates a CalendarDate from a YYYY-MM-DD string.
+   * Parses as local date to avoid UTC timezone offset issues.
+   */
+  static fromString(dateStr: string, locale: string): CalendarDate {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new CalendarDate(new Date(year, month - 1, day), locale);
+  }
 }

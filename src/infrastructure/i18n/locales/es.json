@@ -13,12 +13,21 @@
     "greetingMorning": "Buenos días",
     "greetingAfternoon": "Buenas tardes",
     "greetingEvening": "Buenas noches",
+    "openWeeklyNote": "Abrir nota semanal",
+    "openMonthlyNote": "Abrir nota mensual",
     "fetchingWeather": "Cargando clima…",
     "weatherError": "Clima no disponible"
+  },
+  "monthly": {
+    "openYearlyNote": "Abrir nota anual",
+    "openWeeklyNote": "Abrir nota semanal",
+    "openDailyNote": "Abrir nota diaria"
   },
   "weekly": {
     "week": "Semana",
     "openNote": "Abrir nota semanal",
+    "openMonthlyNote": "Abrir nota mensual",
+    "openYearlyNote": "Abrir nota anual",
     "fetchingWeather": "Cargando pronóstico…",
     "weatherError": "Pronóstico no disponible"
   },
@@ -26,6 +35,23 @@
     "title": "Obsidian Widgets",
     "language": "Idioma",
     "languageDesc": "Idioma usado para las etiquetas de los widgets. 'Auto' sigue el idioma de Obsidian.",
-    "languageAuto": "Auto (seguir Obsidian)"
+    "languageAuto": "Auto (seguir Obsidian)",
+    "weatherHeading": "Ubicación de clima por defecto",
+    "latitude": "Latitud",
+    "latitudeDesc": "Latitud usada cuando el widget no especifica la propia.",
+    "longitude": "Longitud",
+    "longitudeDesc": "Longitud usada cuando el widget no especifica la propia.",
+    "location": "Nombre del lugar",
+    "locationDesc": "Nombre que se muestra en la tarjeta de clima (opcional).",
+    "units": "Unidades de temperatura",
+    "unitsDesc": "Unidad usada cuando el widget no especifica la propia.",
+    "tagColorsHeading": "Colores de etiquetas (calendario mensual)",
+    "tagColorsDesc": "Asocia etiquetas de notas a puntos de colores bajo cada día en el widget mensual.",
+    "tagColorsAdd": "Agregar color de etiqueta",
+    "tagColorsRemove": "Eliminar",
+    "linkColorsHeading": "Colores de referencias (calendario mensual)",
+    "linkColorsDesc": "Asocia referencias a notas con puntos de colores bajo cada día en el widget mensual. Ingresa el nombre del archivo sin extensión.",
+    "linkColorsAdd": "Agregar color de referencia",
+    "linkColorsRemove": "Eliminar"
   }
 }

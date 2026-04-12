@@ -4,10 +4,16 @@ import {
   appHasWeeklyNotesPluginLoaded,
   getAllDailyNotes,
   getAllWeeklyNotes,
+  getAllMonthlyNotes,
+  getAllYearlyNotes,
   createDailyNote,
   createWeeklyNote,
+  createMonthlyNote,
+  createYearlyNote,
   getDailyNote,
   getWeeklyNote,
+  getMonthlyNote,
+  getYearlyNote,
 } from "obsidian-daily-notes-interface";
 import { IPeriodicNotePort } from "@domain/calendar/ports/IPeriodicNotePort";
 import { t } from "@infrastructure/i18n/i18n";
@@ -57,5 +63,21 @@ export class ObsidianPeriodicNoteAdapter implements IPeriodicNotePort {
     if (note) {
       await this.app.workspace.getLeaf(false).openFile(note);
     }
+  }
+
+  async openMonthlyNote(date: Date): Promise<void> {
+    const m = moment(date);
+    const allNotes = getAllMonthlyNotes();
+    let note = getMonthlyNote(m, allNotes);
+    if (!note) note = await createMonthlyNote(m);
+    if (note) await this.app.workspace.getLeaf(false).openFile(note);
+  }
+
+  async openYearlyNote(date: Date): Promise<void> {
+    const m = moment(date);
+    const allNotes = getAllYearlyNotes();
+    let note = getYearlyNote(m, allNotes);
+    if (!note) note = await createYearlyNote(m);
+    if (note) await this.app.workspace.getLeaf(false).openFile(note);
   }
 }

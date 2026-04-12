@@ -3,8 +3,10 @@
  * Temperature is already rounded to the nearest integer.
  */
 export interface WeatherData {
-  /** Current temperature (rounded) */
-  temperature: number;
+  /** Daily minimum temperature (rounded) */
+  tempMin: number;
+  /** Daily maximum temperature (rounded) */
+  tempMax: number;
   /** WMO Weather Interpretation Code (0–99) */
   weatherCode: number;
   /** Wind speed in km/h */

@@ -24,8 +24,34 @@ export class YamlDailyNoteParser implements IWidgetParser<DailyNoteConfig> {
   private validate(raw: Record<string, unknown>): DailyNoteConfig {
     const config: DailyNoteConfig = {};
 
+    // js-yaml parses bare ISO dates (2026-04-08) as JS Date objects, so handle both
+    const rawDate = raw["date"];
+    if (rawDate instanceof Date) {
+      const y = rawDate.getUTCFullYear();
+      const m = String(rawDate.getUTCMonth() + 1).padStart(2, "0");
+      const d = String(rawDate.getUTCDate()).padStart(2, "0");
+      config.date = `${y}-${m}-${d}`;
+    } else if (typeof rawDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawDate.trim())) {
+      config.date = rawDate.trim();
+    }
+
     if (typeof raw["name"] === "string" && raw["name"].trim()) {
       config.name = raw["name"].trim();
+    }
+
+    const g = raw["gratitude"];
+    if (g && typeof g === "object" && !Array.isArray(g)) {
+      const gObj = g as Record<string, unknown>;
+      if (typeof gObj["heading"] === "string" && gObj["heading"].trim()) {
+        config.gratitude = { heading: gObj["heading"].trim() };
+        const after = Number(gObj["after"]);
+        if (!isNaN(after) && after >= 0 && after <= 23) {
+          config.gratitude.after = Math.floor(after);
+        }
+      }
+    } else if (typeof g === "string" && g.trim()) {
+      // shorthand: gratitude: "Agradecimiento"  → no hour restriction
+      config.gratitude = { heading: g.trim() };
     }
 
     const w = raw["weather"];

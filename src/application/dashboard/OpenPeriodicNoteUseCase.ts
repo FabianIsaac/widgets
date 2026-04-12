@@ -14,4 +14,12 @@ export class OpenPeriodicNoteUseCase {
   async openWeekly(date: Date): Promise<void> {
     await this.periodicNotePort.openWeeklyNote(date);
   }
+
+  async openMonthly(date: Date): Promise<void> {
+    await this.periodicNotePort.openMonthlyNote(date);
+  }
+
+  async openYearly(date: Date): Promise<void> {
+    await this.periodicNotePort.openYearlyNote(date);
+  }
 }

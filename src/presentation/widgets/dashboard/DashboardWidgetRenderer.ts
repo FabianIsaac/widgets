@@ -27,7 +27,7 @@ class DashboardWidgetComponent extends MarkdownRenderChild {
     const config = this.parseUseCase.execute(this.source);
     const today = CalendarDate.today(getLocale());
     renderIconBar(container, config, this.app);
-    renderDateBar(container, today, this.app, this.openPeriodicNoteUseCase);
+    renderDateBar(container, today, this.openPeriodicNoteUseCase);
   }
 }
 
