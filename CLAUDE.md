@@ -49,15 +49,17 @@ src/
 | `@infrastructure` | `src/infrastructure` |
 | `@presentation` | `src/presentation` |
 
-### Three registered widgets
+### Five registered widgets
 
 Each widget is a Markdown code block processor registered in `main.ts`:
 
 | Code block tag | Widget | Key config |
 |---|---|---|
 | `widget-dashboard` | Icon bar + date bar | `icons[]` with `icon`, `link`, `command`, `tooltip` |
-| `widget-daily` | Date card + weather + nav | `weather` (lat/lng/units), `name` |
+| `widget-daily` | Date card + weather + calendar events + quick-capture | `weather`, `name`, `date`, `calendars[]`, `captures[]`, `gratitude` |
 | `widget-weekly` | Week grid + 7-day forecast | `weather` (lat/lng/units) |
+| `widget-monthly` | Monthly calendar grid with colored dots | `month`, `year`, `legend` |
+| `tw-weekly` | Simplified weekly grid, no weather | `week`, `year` (JSON input) |
 
 ### Widget lifecycle
 
@@ -72,7 +74,9 @@ Every widget renderer creates a `MarkdownRenderChild` subclass and registers it 
 
 ### Domain ports
 
-- `IWeatherPort` / `IWeatherForecastPort` — fetched from Open-Meteo (no API key required)
+- `IWeatherPort` — `fetchWeatherForDate(config, dateStr)`: routes to Open-Meteo archive (past), current, or forecast endpoint based on date
+- `IWeatherForecastPort` — `fetchWeekForecast(config, weekMonday)`: 7-day forecast; uses archive API for past weeks
+- `ICalendarPort` — `fetchEventsForDate(url, dateStr)`: parses iCal feeds, filtered to a single day
 - `IPeriodicNotePort` — wraps `obsidian-daily-notes-interface` for opening daily/weekly notes
 - `IWidgetParser<T>` — generic parse interface implemented by all `YamlXxxParser` classes
 

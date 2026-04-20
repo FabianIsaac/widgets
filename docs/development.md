@@ -71,10 +71,42 @@ Renderer.render(source, el, ctx)
 
 | Port | Adapter | Purpose |
 |---|---|---|
-| `IWeatherPort` | `OpenMeteoWeatherAdapter` | Current day weather |
-| `IWeatherForecastPort` | `OpenMeteoForecastAdapter` | 7-day forecast |
+| `IWeatherPort` | `OpenMeteoWeatherAdapter` | Date-accurate weather: archive (past), current, or forecast |
+| `IWeatherForecastPort` | `OpenMeteoForecastAdapter` | 7-day forecast; uses archive API for past weeks |
+| `ICalendarPort` | `ICalFeedAdapter` | iCal feed parser — fetches events for a specific date |
 | `IPeriodicNotePort` | `ObsidianPeriodicNoteAdapter` | Open daily/weekly/monthly/yearly notes |
 | `IWidgetParser<T>` | `YamlXxxParser` / `JsonXxxParser` | Parse code block source into typed config |
+
+### IWeatherPort — date routing
+
+`OpenMeteoWeatherAdapter.fetchWeatherForDate(config, dateStr)` routes to three private methods based on how `dateStr` compares to today:
+
+| Date | Endpoint | Fields |
+|---|---|---|
+| Today | `api.open-meteo.com/v1/forecast` with `current` + `forecast_days=1` | `current.weather_code`, `current.wind_speed_10m`, `daily.temperature_2m_min/max` |
+| Past | `archive-api.open-meteo.com/v1/archive` with `start_date`/`end_date` | `daily.weather_code`, `daily.wind_speed_10m_max`, `daily.temperature_2m_min/max` |
+| Future | `api.open-meteo.com/v1/forecast` with `start_date`/`end_date` | same as archive shape |
+
+`OpenMeteoForecastAdapter.fetchWeekForecast(config, weekMonday)` detects past weeks (`endStr < today`) and switches to the archive API for those.
+
+### ICalendarPort — iCal parsing
+
+`ICalFeedAdapter` uses `requestUrl` from the Obsidian API (instead of `fetch`) to bypass Obsidian's Content Security Policy for external URLs. It implements a minimal RFC 5545 parser:
+
+- Line unfolding (CRLF + whitespace continuation)
+- VEVENT extraction
+- DTSTART variants: `DATE` (all-day), `DATE-TIME` local, `DATE-TIME` UTC (`Z` suffix), `TZID=...` (treated as local machine time)
+- 5-minute in-memory cache per URL (avoids re-fetching when the same feed is used in multiple widgets)
+
+### Frontmatter cache keys
+
+The daily widget persists fetched data to the note's frontmatter so it survives offline sessions:
+
+| Key | Stored by | Content |
+|---|---|---|
+| `widget_daily_weather` | `DailyNoteWidgetRenderer` | `WeatherData` + `cachedAt: YYYY-MM-DD` (keyed to the widget's own date, not always today) |
+| `widget_daily_events` | `DailyNoteWidgetRenderer` | `CalendarEvent[]` — plain array, always overwritten on re-fetch |
+| `widget_weekly_weather_v2` | `WeeklyNoteWidgetRenderer` | `DailyForecast[]` with `cachedAt: YYYY-MM-DD` |
 
 ---
 
