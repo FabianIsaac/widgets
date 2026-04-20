@@ -48,10 +48,53 @@ export class YamlDailyNoteParser implements IWidgetParser<DailyNoteConfig> {
         if (!isNaN(after) && after >= 0 && after <= 23) {
           config.gratitude.after = Math.floor(after);
         }
+        if (typeof gObj["tag"] === "string" && gObj["tag"].trim()) {
+          config.gratitude.tag = gObj["tag"].trim().replace(/^#/, "");
+        }
       }
     } else if (typeof g === "string" && g.trim()) {
-      // shorthand: gratitude: "Agradecimiento"  → no hour restriction
       config.gratitude = { heading: g.trim() };
+    }
+
+    const rawCaptures = raw["captures"];
+    if (Array.isArray(rawCaptures)) {
+      config.captures = rawCaptures.flatMap((item) => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return [];
+        const c = item as Record<string, unknown>;
+        if (typeof c["label"] !== "string" || !c["label"].trim()) return [];
+        if (typeof c["format"] !== "string" || !c["format"].trim()) return [];
+        const entry: import("@domain/widget/value-objects/DailyNoteConfig").CaptureButtonConfig = {
+          label: String(c["label"]).trim(),
+          format: String(c["format"]).trim(),
+        };
+        if (typeof c["heading"] === "string" && c["heading"].trim()) {
+          entry.heading = c["heading"].trim();
+        }
+        if (typeof c["placeholder"] === "string" && c["placeholder"].trim()) {
+          entry.placeholder = c["placeholder"].trim();
+        }
+        const after = Number(c["after"]);
+        if (!isNaN(after) && after >= 0 && after <= 23) {
+          entry.after = Math.floor(after);
+        }
+        const until = Number(c["until"]);
+        if (!isNaN(until) && until >= 0 && until <= 23) {
+          entry.until = Math.floor(until);
+        }
+        return [entry];
+      });
+    }
+
+    const cal = raw["calendar"];
+    if (cal) {
+      const entries = Array.isArray(cal) ? cal : [cal];
+      const parsed = entries.flatMap((item) => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return [];
+        const url = (item as Record<string, unknown>)["url"];
+        if (typeof url !== "string" || !url.trim()) return [];
+        return [{ url: url.trim() }];
+      });
+      if (parsed.length > 0) config.calendars = parsed;
     }
 
     const w = raw["weather"];

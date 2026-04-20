@@ -16,12 +16,16 @@
     "openWeeklyNote": "Abrir nota semanal",
     "openMonthlyNote": "Abrir nota mensual",
     "fetchingWeather": "Cargando clima…",
-    "weatherError": "Clima no disponible"
+    "weatherError": "Clima no disponible",
+    "capturePlaceholder": "Agregar…",
+    "calendarLoading": "Cargando eventos…",
+    "calendarAllDay": "Todo el día"
   },
   "monthly": {
     "openYearlyNote": "Abrir nota anual",
     "openWeeklyNote": "Abrir nota semanal",
-    "openDailyNote": "Abrir nota diaria"
+    "openDailyNote": "Abrir nota diaria",
+    "progressTooltip": "{{completed}} de {{total}} tareas completadas"
   },
   "weekly": {
     "week": "Semana",
@@ -29,29 +33,75 @@
     "openMonthlyNote": "Abrir nota mensual",
     "openYearlyNote": "Abrir nota anual",
     "fetchingWeather": "Cargando pronóstico…",
-    "weatherError": "Pronóstico no disponible"
+    "weatherError": "Pronóstico no disponible",
+    "prevWeek": "Semana anterior",
+    "nextWeek": "Semana siguiente",
+    "summaryTasksTooltip": "{{completed}} de {{total}} tareas completadas",
+    "summaryPendingTooltip": "{{count}} día(s) con tareas pendientes",
+    "summaryNewNotesTooltip": "{{count}} nota(s) nueva(s) creada(s) esta semana"
   },
   "settings": {
     "title": "Obsidian Widgets",
+
+    "sectionGeneral": "General",
     "language": "Idioma",
     "languageDesc": "Idioma usado para las etiquetas de los widgets. 'Auto' sigue el idioma de Obsidian.",
     "languageAuto": "Auto (seguir Obsidian)",
-    "weatherHeading": "Ubicación de clima por defecto",
-    "latitude": "Latitud",
-    "latitudeDesc": "Latitud usada cuando el widget no especifica la propia.",
-    "longitude": "Longitud",
-    "longitudeDesc": "Longitud usada cuando el widget no especifica la propia.",
-    "location": "Nombre del lugar",
-    "locationDesc": "Nombre que se muestra en la tarjeta de clima (opcional).",
-    "units": "Unidades de temperatura",
-    "unitsDesc": "Unidad usada cuando el widget no especifica la propia.",
-    "tagColorsHeading": "Colores de etiquetas (calendario mensual)",
+
+    "sectionDaily": "Widget diario",
+
+    "captureTemplatesHeading": "Capturas rápidas",
+    "captureTemplatesDesc": "Botones disponibles en todos los widgets diarios. Si el widget define sus propios `captures:` en YAML, esos tienen prioridad. Tokens disponibles: {text} (texto ingresado), {time} (hora actual HH:mm), {task} (shorthand para '- [ ] {text}'). Escribe \\n para insertar un salto de línea (útil para callouts: \"> [!note]\\n> {text}\"). La sección es opcional — si se deja vacía, las entradas van al bloque de hora del momento (## HH:00).",
+    "captureTemplatesAdd": "Agregar plantilla",
+    "captureTemplatesRemove": "Eliminar",
+    "captureTemplatesLabel": "Etiqueta del botón",
+    "captureTemplatesFormat": "Formato (ej: - {time} {text})",
+    "captureTemplatesHeadingField": "Sección (vacío = bloque de hora)",
+    "captureTemplatesAfter": "desde (h)",
+    "captureTemplatesUntil": "hasta (h)",
+
+    "gratitudeHeading": "Gratitud",
+    "gratitudeAutoTag": "Auto-etiqueta",
+    "gratitudeAutoTagDesc": "Tag que se agrega al frontmatter de la nota diaria al escribir el primer agradecimiento. Sin '#'. Puede sobreescribirse por widget con `gratitude.tag` en YAML. Dejar vacío para desactivar.",
+
+    "sectionWeekly": "Widget semanal",
+
+    "excludedTagPrefixesHeading": "Prefijos de tags excluidos",
+    "excludedTagPrefixesDesc": "Los tags que comiencen con estos prefijos no aparecerán en el top de tags del resumen semanal. Ej: 'tipo/' excluirá 'tipo/diario', 'tipo/trabajo', etc.",
+    "excludedTagPrefixesAdd": "Agregar prefijo",
+    "excludedTagPrefixesRemove": "Eliminar",
+
+    "sectionMonthly": "Widget mensual",
+
+    "tagColorsHeading": "Colores de etiquetas",
     "tagColorsDesc": "Asocia etiquetas de notas a puntos de colores bajo cada día en el widget mensual.",
     "tagColorsAdd": "Agregar color de etiqueta",
     "tagColorsRemove": "Eliminar",
-    "linkColorsHeading": "Colores de referencias (calendario mensual)",
-    "linkColorsDesc": "Asocia referencias a notas con puntos de colores bajo cada día en el widget mensual. Ingresa el nombre del archivo sin extensión.",
+
+    "linkColorsHeading": "Colores de referencias",
+    "linkColorsDesc": "Asocia referencias a notas con puntos de colores bajo cada día. Ingresa el nombre del archivo sin extensión.",
     "linkColorsAdd": "Agregar color de referencia",
-    "linkColorsRemove": "Eliminar"
+    "linkColorsRemove": "Eliminar",
+    "linkColorsFilename": "Nombre del archivo",
+    "linkColorsAlias": "Alias (opcional)",
+
+    "frontmatterColorsHeading": "Propiedades frontmatter",
+    "frontmatterColorsDesc": "Asocia valores de propiedades del frontmatter con puntos de colores. Ejemplo: propiedad 'mood', valor 'happy'.",
+    "frontmatterColorsAdd": "Agregar propiedad",
+    "frontmatterColorsRemove": "Eliminar",
+    "frontmatterColorsProperty": "propiedad",
+    "frontmatterColorsValue": "valor",
+    "frontmatterColorsAlias": "etiqueta (opcional)",
+
+    "sectionWeather": "Clima por defecto",
+    "sectionWeatherDesc": "Ubicación usada por los widgets de clima cuando no se especifica una propia en el bloque YAML.",
+    "latitude": "Latitud",
+    "latitudeDesc": "Latitud decimal (ej: -33.511).",
+    "longitude": "Longitud",
+    "longitudeDesc": "Longitud decimal (ej: -70.631).",
+    "location": "Nombre del lugar",
+    "locationDesc": "Nombre que se muestra en la tarjeta de clima (opcional).",
+    "units": "Unidades de temperatura",
+    "unitsDesc": "Unidad usada cuando el widget no especifica la propia."
   }
 }

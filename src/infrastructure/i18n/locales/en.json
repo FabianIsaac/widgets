@@ -16,12 +16,16 @@
     "openWeeklyNote": "Open weekly note",
     "openMonthlyNote": "Open monthly note",
     "fetchingWeather": "Loading weather…",
-    "weatherError": "Weather unavailable"
+    "weatherError": "Weather unavailable",
+    "capturePlaceholder": "Add…",
+    "calendarLoading": "Loading events…",
+    "calendarAllDay": "All day"
   },
   "monthly": {
     "openYearlyNote": "Open yearly note",
     "openWeeklyNote": "Open weekly note",
-    "openDailyNote": "Open daily note"
+    "openDailyNote": "Open daily note",
+    "progressTooltip": "{{completed}} of {{total}} tasks completed"
   },
   "weekly": {
     "week": "Week",
@@ -29,29 +33,75 @@
     "openMonthlyNote": "Open monthly note",
     "openYearlyNote": "Open yearly note",
     "fetchingWeather": "Loading forecast…",
-    "weatherError": "Forecast unavailable"
+    "weatherError": "Forecast unavailable",
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "summaryTasksTooltip": "{{completed}} of {{total}} tasks completed",
+    "summaryPendingTooltip": "{{count}} day(s) with pending tasks",
+    "summaryNewNotesTooltip": "{{count}} new note(s) created this week"
   },
   "settings": {
     "title": "Obsidian Widgets",
+
+    "sectionGeneral": "General",
     "language": "Language",
     "languageDesc": "Language used for widget labels. 'Auto' follows Obsidian's language setting.",
     "languageAuto": "Auto (follow Obsidian)",
-    "weatherHeading": "Default weather location",
-    "latitude": "Latitude",
-    "latitudeDesc": "Default latitude used when a widget does not specify its own.",
-    "longitude": "Longitude",
-    "longitudeDesc": "Default longitude used when a widget does not specify its own.",
-    "location": "Location name",
-    "locationDesc": "Display name shown in the weather card (optional).",
-    "units": "Temperature units",
-    "unitsDesc": "Default unit used when a widget does not specify its own.",
-    "tagColorsHeading": "Tag colors (monthly calendar)",
+
+    "sectionDaily": "Daily widget",
+
+    "captureTemplatesHeading": "Quick-capture templates",
+    "captureTemplatesDesc": "Buttons available in all daily widgets. If a widget defines its own `captures:` in YAML, those take priority. Available tokens: {text} (user input), {time} (current HH:mm), {task} (shorthand for '- [ ] {text}'). Write \\n for a line break (useful for callouts: \"> [!note]\\n> {text}\"). The heading field is optional — leave empty to group entries under an hour block (## HH:00).",
+    "captureTemplatesAdd": "Add template",
+    "captureTemplatesRemove": "Remove",
+    "captureTemplatesLabel": "Button label",
+    "captureTemplatesFormat": "Format (e.g. - {time} {text})",
+    "captureTemplatesHeadingField": "Heading (empty = hour block)",
+    "captureTemplatesAfter": "from (h)",
+    "captureTemplatesUntil": "until (h)",
+
+    "gratitudeHeading": "Gratitude",
+    "gratitudeAutoTag": "Auto-tag",
+    "gratitudeAutoTagDesc": "Tag added to the daily note's frontmatter on the first gratitude entry. Without '#'. Can be overridden per-widget with `gratitude.tag` in YAML. Leave empty to disable.",
+
+    "sectionWeekly": "Weekly widget",
+
+    "excludedTagPrefixesHeading": "Excluded tag prefixes",
+    "excludedTagPrefixesDesc": "Tags starting with these prefixes are excluded from the weekly summary top-tags list. E.g. 'tipo/' will exclude 'tipo/diario', 'tipo/work', etc.",
+    "excludedTagPrefixesAdd": "Add prefix",
+    "excludedTagPrefixesRemove": "Remove",
+
+    "sectionMonthly": "Monthly widget",
+
+    "tagColorsHeading": "Tag colors",
     "tagColorsDesc": "Map note tags to colored dots shown under each day in the monthly widget.",
     "tagColorsAdd": "Add tag color",
     "tagColorsRemove": "Remove",
-    "linkColorsHeading": "Link colors (monthly calendar)",
-    "linkColorsDesc": "Map note links to colored dots shown under each day in the monthly widget. Enter the filename without extension.",
+
+    "linkColorsHeading": "Link colors",
+    "linkColorsDesc": "Map note links to colored dots shown under each day. Enter the filename without extension.",
     "linkColorsAdd": "Add link color",
-    "linkColorsRemove": "Remove"
+    "linkColorsRemove": "Remove",
+    "linkColorsFilename": "Filename",
+    "linkColorsAlias": "Alias (optional)",
+
+    "frontmatterColorsHeading": "Frontmatter properties",
+    "frontmatterColorsDesc": "Map frontmatter property values to colored dots. Example: property 'mood', value 'happy'.",
+    "frontmatterColorsAdd": "Add property",
+    "frontmatterColorsRemove": "Remove",
+    "frontmatterColorsProperty": "property",
+    "frontmatterColorsValue": "value",
+    "frontmatterColorsAlias": "label (optional)",
+
+    "sectionWeather": "Default weather",
+    "sectionWeatherDesc": "Location used by weather widgets when no location is specified in the YAML block.",
+    "latitude": "Latitude",
+    "latitudeDesc": "Decimal latitude (e.g. -33.511).",
+    "longitude": "Longitude",
+    "longitudeDesc": "Decimal longitude (e.g. -70.631).",
+    "location": "Location name",
+    "locationDesc": "Display name shown in the weather card (optional).",
+    "units": "Temperature units",
+    "unitsDesc": "Default unit used when a widget does not specify its own."
   }
 }

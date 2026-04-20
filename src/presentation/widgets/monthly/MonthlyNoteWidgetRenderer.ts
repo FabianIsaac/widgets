@@ -2,7 +2,7 @@ import { App, MarkdownRenderChild, MarkdownPostProcessorContext, TFile } from "o
 import { ParseMonthlyNoteConfigUseCase } from "@application/monthly/ParseMonthlyNoteConfigUseCase";
 import { OpenPeriodicNoteUseCase } from "@application/dashboard/OpenPeriodicNoteUseCase";
 import { t, getLocale } from "@infrastructure/i18n/i18n";
-import { SettingsManager, TagColorEntry, LinkColorEntry } from "@presentation/settings/SettingsManager";
+import { SettingsManager, TagColorEntry, LinkColorEntry, FrontmatterColorEntry } from "@presentation/settings/SettingsManager";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -40,6 +40,15 @@ function getDailyNoteFile(app: App, date: Date): TFile | null {
 }
 
 /**
+ * Returns true if the file has at least one uncompleted task (- [ ] item).
+ */
+function hasPendingTasks(app: App, file: TFile): boolean {
+  const cache = app.metadataCache.getFileCache(file);
+  if (!cache?.listItems) return false;
+  return cache.listItems.some((item) => item.task === " ");
+}
+
+/**
  * Returns the list of tags from the `tags` frontmatter property of a file.
  * Returns an empty array if none found.
  */
@@ -53,22 +62,6 @@ function getFileTags(app: App, file: TFile): string[] {
 }
 
 /**
- * Given a list of tags and the configured tag-color entries,
- * returns the colors that should be shown (in config order, deduped).
- */
-function resolveTagColors(tags: string[], tagColors: TagColorEntry[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-  for (const entry of tagColors) {
-    if (tags.includes(entry.tag) && !seen.has(entry.color)) {
-      seen.add(entry.color);
-      result.push(entry.color);
-    }
-  }
-  return result;
-}
-
-/**
  * Returns the basenames (without heading/block anchors) of all outgoing links
  * in a file, as reported by Obsidian's metadata cache.
  */
@@ -78,36 +71,49 @@ function getFileLinks(app: App, file: TFile): string[] {
   return cache.links.map((ref) => ref.link.split("#")[0].trim());
 }
 
-/**
- * Given a list of link basenames and the configured link-color entries,
- * returns the colors that should be shown (in config order, deduped).
- */
-function resolveLinkColors(links: string[], linkColors: LinkColorEntry[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-  for (const entry of linkColors) {
-    if (entry.link && links.includes(entry.link) && !seen.has(entry.color)) {
-      seen.add(entry.color);
-      result.push(entry.color);
+/** Returns completed and total task counts for a file. */
+function getTaskStats(app: App, file: TFile): { completed: number; total: number } {
+  const cache = app.metadataCache.getFileCache(file);
+  if (!cache?.listItems) return { completed: 0, total: 0 };
+  const tasks = cache.listItems.filter((item) => item.task !== undefined);
+  const completed = tasks.filter((item) => item.task === "x" || item.task === "X").length;
+  return { completed, total: tasks.length };
+}
+
+/** Aggregates task stats across all daily notes in a given month. */
+function getMonthTaskStats(app: App, year: number, month: number): { completed: number; total: number } {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  let completed = 0;
+  let total = 0;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const file = getDailyNoteFile(app, new Date(year, month - 1, day));
+    if (file) {
+      const stats = getTaskStats(app, file);
+      completed += stats.completed;
+      total += stats.total;
     }
   }
-  return result;
+  return { completed, total };
 }
 
 /**
- * Merges tag colors and link colors, deduping by color value across both sources.
+ * Merges tag, link, and frontmatter colors, deduping by color value.
  */
 function resolveAllDotColors(
   app: App,
   file: TFile,
   tagColors: TagColorEntry[],
-  linkColors: LinkColorEntry[]
+  linkColors: LinkColorEntry[],
+  frontmatterColors: FrontmatterColorEntry[]
 ): string[] {
   const seen = new Set<string>();
   const result: string[] = [];
 
   const tags = tagColors.length > 0 ? getFileTags(app, file) : [];
   const links = linkColors.length > 0 ? getFileLinks(app, file) : [];
+  const fm = frontmatterColors.length > 0
+    ? (app.metadataCache.getFileCache(file)?.frontmatter ?? null)
+    : null;
 
   for (const entry of tagColors) {
     if (tags.includes(entry.tag) && !seen.has(entry.color)) {
@@ -119,6 +125,18 @@ function resolveAllDotColors(
     if (entry.link && links.includes(entry.link) && !seen.has(entry.color)) {
       seen.add(entry.color);
       result.push(entry.color);
+    }
+  }
+  if (fm) {
+    for (const entry of frontmatterColors) {
+      if (!entry.property || !entry.value) continue;
+      const raw = fm[entry.property];
+      if (raw !== undefined && raw !== null &&
+          String(raw).toLowerCase() === entry.value.toLowerCase() &&
+          !seen.has(entry.color)) {
+        seen.add(entry.color);
+        result.push(entry.color);
+      }
     }
   }
   return result;
@@ -152,7 +170,8 @@ function renderMonthHeader(
   container: HTMLElement,
   year: number,
   month: number,
-  openPeriodicNoteUseCase: OpenPeriodicNoteUseCase
+  openPeriodicNoteUseCase: OpenPeriodicNoteUseCase,
+  taskStats: { completed: number; total: number }
 ): void {
   const locale = getLocale();
   const refDate = new Date(year, month - 1, 1);
@@ -174,6 +193,27 @@ function renderMonthHeader(
       openPeriodicNoteUseCase.openYearly(refDate)
     );
   });
+
+  // Task progress summary — only when the month has tasks
+  if (taskStats.total > 0) {
+    const pct = taskStats.completed / taskStats.total;
+    const tooltip = t("monthly.progressTooltip", {
+      completed: taskStats.completed,
+      total: taskStats.total,
+    });
+
+    const progress = header.createDiv({ cls: "widget-monthly__progress" });
+    progress.setAttribute("title", tooltip);
+
+    progress.createEl("span", {
+      cls: "widget-monthly__progress-text",
+      text: `${taskStats.completed}/${taskStats.total}`,
+    });
+
+    const track = progress.createDiv({ cls: "widget-monthly__progress-track" });
+    const fill = track.createDiv({ cls: "widget-monthly__progress-fill" });
+    fill.style.width = `${Math.round(pct * 100)}%`;
+  }
 }
 
 /**
@@ -211,7 +251,8 @@ function renderWeekRow(
   app: App,
   openPeriodicNoteUseCase: OpenPeriodicNoteUseCase,
   tagColors: TagColorEntry[],
-  linkColors: LinkColorEntry[]
+  linkColors: LinkColorEntry[],
+  frontmatterColors: FrontmatterColorEntry[]
 ): void {
   const row = container.createDiv({ cls: "widget-monthly__week-row" });
 
@@ -252,16 +293,36 @@ function renderWeekRow(
         text: String(date.getDate()),
       });
 
-      // Render tag + link color dots
-      if (noteFile && (tagColors.length > 0 || linkColors.length > 0)) {
-        const colors = resolveAllDotColors(app, noteFile, tagColors, linkColors);
-        if (colors.length > 0) {
-          const dotsEl = cell.createDiv({ cls: "widget-monthly__day-dots" });
-          for (const color of colors) {
-            const dot = dotsEl.createDiv({ cls: "widget-monthly__day-dot" });
-            dot.style.setProperty("background-color", `var(--color-${color})`);
-          }
+      // Task stats
+      const taskStats = noteFile ? getTaskStats(app, noteFile) : { completed: 0, total: 0 };
+      const pendingTask = noteFile ? hasPendingTasks(app, noteFile) : false;
+      const hasCompleted = taskStats.completed > 0;
+
+      // Render dots: colored (tag/link/frontmatter) + ✓ completed + ○ pending
+      const colors = noteFile
+        ? resolveAllDotColors(app, noteFile, tagColors, linkColors, frontmatterColors)
+        : [];
+
+      if (colors.length > 0 || hasCompleted || pendingTask) {
+        const dotsEl = cell.createDiv({ cls: "widget-monthly__day-dots" });
+        for (const color of colors) {
+          const dot = dotsEl.createDiv({ cls: "widget-monthly__day-dot" });
+          dot.style.setProperty("background-color", `var(--color-${color})`);
         }
+        if (hasCompleted) {
+          dotsEl.createEl("span", { cls: "widget-monthly__day-task-done", text: "✓" });
+        }
+        if (pendingTask) {
+          dotsEl.createDiv({ cls: "widget-monthly__day-dot widget-monthly__day-dot--pending" });
+        }
+      }
+
+      // Task ratio (e.g. "2/5"), only when tasks exist
+      if (taskStats.total > 0) {
+        cell.createEl("span", {
+          cls: "widget-monthly__day-tasks",
+          text: `${taskStats.completed}/${taskStats.total}`,
+        });
       }
 
       cell.addEventListener("click", () => openPeriodicNoteUseCase.openDaily(date));
@@ -282,24 +343,23 @@ function renderCalendarGrid(
   app: App,
   openPeriodicNoteUseCase: OpenPeriodicNoteUseCase,
   tagColors: TagColorEntry[],
-  linkColors: LinkColorEntry[]
+  linkColors: LinkColorEntry[],
+  frontmatterColors: FrontmatterColorEntry[]
 ): void {
   const grid = container.createDiv({ cls: "widget-monthly__grid" });
 
   renderDayHeaders(grid);
 
-  // Find the Monday of the week containing the 1st of the month
   const firstDay = new Date(year, month - 1, 1);
-  const firstDayOfWeek = firstDay.getDay() || 7; // Sun=0 → 7
+  const firstDayOfWeek = firstDay.getDay() || 7;
   const monday = new Date(firstDay);
   monday.setDate(firstDay.getDate() - (firstDayOfWeek - 1));
 
-  // Render weeks until we've passed the last day of the month
-  const lastDay = new Date(year, month, 0); // last day of month
+  const lastDay = new Date(year, month, 0);
   let cursor = new Date(monday);
 
   while (cursor <= lastDay) {
-    renderWeekRow(grid, new Date(cursor), month, today, app, openPeriodicNoteUseCase, tagColors, linkColors);
+    renderWeekRow(grid, new Date(cursor), month, today, app, openPeriodicNoteUseCase, tagColors, linkColors, frontmatterColors);
     cursor.setDate(cursor.getDate() + 7);
   }
 }
@@ -310,10 +370,13 @@ function renderCalendarGrid(
 function renderLegend(
   container: HTMLElement,
   tagColors: TagColorEntry[],
-  linkColors: LinkColorEntry[]
+  linkColors: LinkColorEntry[],
+  frontmatterColors: FrontmatterColorEntry[]
 ): void {
   const hasEntries =
-    tagColors.some((e) => e.tag) || linkColors.some((e) => e.link);
+    tagColors.some((e) => e.tag) ||
+    linkColors.some((e) => e.link) ||
+    frontmatterColors.some((e) => e.property && e.value);
   if (!hasEntries) return;
 
   const legend = container.createDiv({ cls: "widget-monthly__legend" });
@@ -332,6 +395,15 @@ function renderLegend(
     const dot = item.createDiv({ cls: "widget-monthly__legend-dot" });
     dot.style.setProperty("background-color", `var(--color-${entry.color})`);
     item.createEl("span", { cls: "widget-monthly__legend-label", text: entry.alias ?? `[[${entry.link}]]` });
+  }
+
+  for (const entry of frontmatterColors) {
+    if (!entry.property || !entry.value) continue;
+    const item = legend.createDiv({ cls: "widget-monthly__legend-item" });
+    const dot = item.createDiv({ cls: "widget-monthly__legend-dot" });
+    dot.style.setProperty("background-color", `var(--color-${entry.color})`);
+    const label = entry.alias ?? `${entry.property}: ${entry.value}`;
+    item.createEl("span", { cls: "widget-monthly__legend-label", text: label });
   }
 }
 
@@ -355,15 +427,16 @@ class MonthlyNoteWidgetComponent extends MarkdownRenderChild {
 
     const month = config.month ?? today.getMonth() + 1;
     const year = config.year ?? today.getFullYear();
-    const { tagColors, linkColors } = this.settingsManager.get();
+    const { tagColors, linkColors, frontmatterColors } = this.settingsManager.get();
 
     const container = this.containerEl.createDiv({ cls: "widget-monthly" });
 
-    renderMonthHeader(container, year, month, this.openPeriodicNoteUseCase);
-    renderCalendarGrid(container, year, month, today, this.app, this.openPeriodicNoteUseCase, tagColors, linkColors);
+    const monthTaskStats = getMonthTaskStats(this.app, year, month);
+    renderMonthHeader(container, year, month, this.openPeriodicNoteUseCase, monthTaskStats);
+    renderCalendarGrid(container, year, month, today, this.app, this.openPeriodicNoteUseCase, tagColors, linkColors, frontmatterColors);
 
     if (config.legend) {
-      renderLegend(container, tagColors, linkColors);
+      renderLegend(container, tagColors, linkColors, frontmatterColors);
     }
   }
 }

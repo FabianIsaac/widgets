@@ -7,10 +7,12 @@ import { YamlWeeklyNoteParser } from "@infrastructure/parsers/YamlWeeklyNotePars
 import { YamlMonthlyNoteParser } from "@infrastructure/parsers/YamlMonthlyNoteParser";
 import { OpenMeteoWeatherAdapter } from "@infrastructure/weather/OpenMeteoWeatherAdapter";
 import { OpenMeteoForecastAdapter } from "@infrastructure/weather/OpenMeteoForecastAdapter";
+import { ICalFeedAdapter } from "@infrastructure/calendar/ICalFeedAdapter";
 import { ParseDashboardConfigUseCase } from "@application/dashboard/ParseDashboardConfigUseCase";
 import { OpenPeriodicNoteUseCase } from "@application/dashboard/OpenPeriodicNoteUseCase";
 import { ParseDailyNoteConfigUseCase } from "@application/daily/ParseDailyNoteConfigUseCase";
 import { FetchWeatherUseCase } from "@application/daily/FetchWeatherUseCase";
+import { FetchTodayEventsUseCase } from "@application/daily/FetchTodayEventsUseCase";
 import { ParseWeeklyNoteConfigUseCase } from "@application/weekly/ParseWeeklyNoteConfigUseCase";
 import { FetchWeeklyForecastUseCase } from "@application/weekly/FetchWeeklyForecastUseCase";
 import { ParseMonthlyNoteConfigUseCase } from "@application/monthly/ParseMonthlyNoteConfigUseCase";
@@ -18,6 +20,7 @@ import { DashboardWidgetRenderer } from "@presentation/widgets/dashboard/Dashboa
 import { DailyNoteWidgetRenderer } from "@presentation/widgets/daily/DailyNoteWidgetRenderer";
 import { WeeklyNoteWidgetRenderer } from "@presentation/widgets/weekly/WeeklyNoteWidgetRenderer";
 import { MonthlyNoteWidgetRenderer } from "@presentation/widgets/monthly/MonthlyNoteWidgetRenderer";
+import { TwWeeklyWidgetRenderer } from "@presentation/widgets/tw-weekly/TwWeeklyWidgetRenderer";
 import { WidgetSettingsTab } from "@presentation/settings/WidgetSettingsTab";
 import { SettingsManager } from "@presentation/settings/SettingsManager";
 
@@ -60,6 +63,7 @@ export default class ObsidianWidgetsPlugin extends Plugin {
     const dailyNoteRenderer = new DailyNoteWidgetRenderer(
       new ParseDailyNoteConfigUseCase(new YamlDailyNoteParser()),
       new FetchWeatherUseCase(new OpenMeteoWeatherAdapter()),
+      new FetchTodayEventsUseCase(new ICalFeedAdapter()),
       openPeriodicNoteUseCase,
       this.app,
       this.settingsManager
@@ -84,7 +88,20 @@ export default class ObsidianWidgetsPlugin extends Plugin {
       (source, el, ctx) => weeklyNoteRenderer.render(source, el, ctx)
     );
 
-    // 7. Monthly note widget
+    // 7. tw-weekly widget (simplified weekly without weather, backward-compat)
+    const twWeeklyRenderer = new TwWeeklyWidgetRenderer(
+      new ParseWeeklyNoteConfigUseCase(new YamlWeeklyNoteParser()),
+      openPeriodicNoteUseCase,
+      this.app,
+      this.settingsManager
+    );
+
+    this.registerMarkdownCodeBlockProcessor(
+      "tw-weekly",
+      (source, el, ctx) => twWeeklyRenderer.render(source, el, ctx)
+    );
+
+    // 8. Monthly note widget
     const monthlyNoteRenderer = new MonthlyNoteWidgetRenderer(
       new ParseMonthlyNoteConfigUseCase(new YamlMonthlyNoteParser()),
       openPeriodicNoteUseCase,

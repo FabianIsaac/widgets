@@ -57,8 +57,9 @@ export async function changeLanguage(lang: string): Promise<void> {
  * Translate a key using the current language.
  * Usage: t("dashboard.openDailyNote")
  */
-export function t(key: string): string {
-  return i18next.t(key);
+export function t(key: string, vars?: Record<string, unknown>): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return i18next.t(key as any, vars as any) as string;
 }
 
 /**

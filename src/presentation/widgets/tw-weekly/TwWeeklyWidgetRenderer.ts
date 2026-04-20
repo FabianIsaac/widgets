@@ -1,14 +1,10 @@
 import { App, MarkdownRenderChild, MarkdownPostProcessorContext, TFile, setTooltip } from "obsidian";
-import { resolveWeatherConfig } from "@infrastructure/weather/WeatherConfigResolver";
-import { SettingsManager } from "@presentation/settings/SettingsManager";
 import { ParseWeeklyNoteConfigUseCase } from "@application/weekly/ParseWeeklyNoteConfigUseCase";
-import { FetchWeeklyForecastUseCase } from "@application/weekly/FetchWeeklyForecastUseCase";
 import { OpenPeriodicNoteUseCase } from "@application/dashboard/OpenPeriodicNoteUseCase";
-import { DailyForecast } from "@domain/weather/value-objects/DailyForecast";
-import { getWeatherCondition } from "@infrastructure/weather/WmoWeatherConditions";
+import { SettingsManager } from "@presentation/settings/SettingsManager";
 import { t, getLocale } from "@infrastructure/i18n/i18n";
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getISOWeekNumber(date: Date): number {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -65,13 +61,6 @@ function monthName(date: Date, locale: string): string {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
-function toLocalISODate(d: Date): string {
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
 function getDailyNoteFile(app: App, date: Date): TFile | null {
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -109,7 +98,6 @@ function getWeekStats(app: App, monday: Date, excludedTagPrefixes: string[]): We
     const cache = app.metadataCache.getFileCache(file);
     if (!cache) continue;
 
-    // Tasks
     if (cache.listItems) {
       const tasks = cache.listItems.filter((item) => item.task !== undefined);
       const completed = tasks.filter((item) => item.task === "x" || item.task === "X").length;
@@ -118,7 +106,6 @@ function getWeekStats(app: App, monday: Date, excludedTagPrefixes: string[]): We
       if (tasks.some((item) => item.task === " ")) pendingDays++;
     }
 
-    // Tags
     if (cache.tags) {
       for (const { tag } of cache.tags) {
         const normalized = tag.replace(/^#/, "");
@@ -133,7 +120,6 @@ function getWeekStats(app: App, monday: Date, excludedTagPrefixes: string[]): We
     .sort((a, b) => b.count - a.count)
     .slice(0, 3);
 
-  // New notes created this week (excluding daily notes by filename pattern)
   const weekStart = monday.getTime();
   const weekEnd = new Date(monday);
   weekEnd.setDate(monday.getDate() + 7);
@@ -146,33 +132,6 @@ function getWeekStats(app: App, monday: Date, excludedTagPrefixes: string[]): We
   }).length;
 
   return { completedTasks, totalTasks, pendingDays, topTags, newNotesCount };
-}
-
-// ── Weather cache helpers ─────────────────────────────────────────────────────
-
-const FORECAST_CACHE_KEY = "widget_weekly_weather_v2";
-
-function readForecastCache(app: App, file: TFile, mondayStr: string): DailyForecast[] | null {
-  const fm = app.metadataCache.getFileCache(file)?.frontmatter;
-  const cached = fm?.[FORECAST_CACHE_KEY];
-  if (!cached || cached.weekMonday !== mondayStr || !Array.isArray(cached.forecasts)) return null;
-  return (cached.forecasts as { date: string; weatherCode: number; maxTemp: number; minTemp: number }[]).map(
-    (f) => ({ date: new Date(f.date), weatherCode: f.weatherCode, maxTemp: f.maxTemp, minTemp: f.minTemp })
-  );
-}
-
-async function writeForecastCache(app: App, file: TFile, forecasts: DailyForecast[], mondayStr: string): Promise<void> {
-  await app.fileManager.processFrontMatter(file, (fm) => {
-    fm[FORECAST_CACHE_KEY] = {
-      weekMonday: mondayStr,
-      forecasts: forecasts.map((f) => ({
-        date: toLocalISODate(f.date), // local date, not UTC
-        weatherCode: f.weatherCode,
-        maxTemp: f.maxTemp,
-        minTemp: f.minTemp,
-      })),
-    };
-  });
 }
 
 // ── Sub-renderers ─────────────────────────────────────────────────────────────
@@ -193,7 +152,6 @@ function renderWeekHeader(
 
   const header = container.createDiv({ cls: "widget-weekly__header" });
 
-  // Week label row with nav arrows
   const weekNav = header.createDiv({ cls: "widget-weekly__week-nav" });
 
   const prevBtn = weekNav.createEl("span", { cls: "widget-weekly__nav-btn", text: "‹" });
@@ -237,8 +195,6 @@ function renderWeekHeader(
 function renderDayColumn(
   row: HTMLElement,
   date: Date,
-  forecast: DailyForecast | undefined,
-  hasWeather: boolean,
   openPeriodicNoteUseCase: OpenPeriodicNoteUseCase,
   hasPending: boolean
 ): void {
@@ -253,20 +209,6 @@ function renderDayColumn(
 
   col.createEl("span", { cls: "widget-weekly__day-abbr", text: dayAbbr(date, locale) });
   col.createEl("span", { cls: "widget-weekly__day-num", text: String(date.getDate()) });
-
-  if (hasWeather) {
-    if (forecast && forecast.weatherCode >= 0) {
-      const condition = getWeatherCondition(forecast.weatherCode, locale);
-      col.createEl("span", { cls: "widget-weekly__day-emoji", text: condition.emoji });
-      col.createEl("span", {
-        cls: "widget-weekly__day-temp",
-        text: `${forecast.maxTemp}° ${forecast.minTemp}°`,
-      });
-    } else {
-      col.createEl("span", { cls: "widget-weekly__day-emoji", text: "—" });
-      col.createEl("span", { cls: "widget-weekly__day-temp widget-weekly__day-temp--loading", text: "…" });
-    }
-  }
 
   if (hasPending) {
     col.createDiv({ cls: "widget-weekly__day-task-dot" });
@@ -286,7 +228,6 @@ function renderWeekSummary(container: HTMLElement, stats: WeekStats): void {
 
   const summary = container.createDiv({ cls: "widget-weekly__summary" });
 
-  // Tags row (left-aligned)
   if (stats.topTags.length > 0) {
     const tagsEl = summary.createDiv({ cls: "widget-weekly__summary-tags" });
     for (const { tag } of stats.topTags) {
@@ -294,7 +235,6 @@ function renderWeekSummary(container: HTMLElement, stats: WeekStats): void {
     }
   }
 
-  // Right-aligned metrics
   const metrics = summary.createDiv({ cls: "widget-weekly__summary-metrics" });
 
   if (stats.newNotesCount > 0) {
@@ -321,16 +261,14 @@ function renderWeekSummary(container: HTMLElement, stats: WeekStats): void {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-class WeeklyNoteWidgetComponent extends MarkdownRenderChild {
+class TwWeeklyWidgetComponent extends MarkdownRenderChild {
   private monday!: Date;
   private widget!: HTMLElement;
 
   constructor(
     containerEl: HTMLElement,
     private readonly source: string,
-    private readonly sourcePath: string,
     private readonly parseUseCase: ParseWeeklyNoteConfigUseCase,
-    private readonly fetchForecastUseCase: FetchWeeklyForecastUseCase,
     private readonly openPeriodicNoteUseCase: OpenPeriodicNoteUseCase,
     private readonly app: App,
     private readonly settingsManager: SettingsManager
@@ -356,9 +294,6 @@ class WeeklyNoteWidgetComponent extends MarkdownRenderChild {
   }
 
   private renderWeek(): void {
-    const config = this.parseUseCase.execute(this.source);
-    const weatherConfig = resolveWeatherConfig(config.weather, this.settingsManager.get());
-
     renderWeekHeader(
       this.widget,
       this.monday,
@@ -368,47 +303,13 @@ class WeeklyNoteWidgetComponent extends MarkdownRenderChild {
     );
 
     const grid = this.widget.createDiv({ cls: "widget-weekly__days-grid" });
-    const weekDates = Array.from({ length: 7 }, (_, i) => {
+
+    for (let i = 0; i < 7; i++) {
       const d = new Date(this.monday);
       d.setDate(this.monday.getDate() + i);
-      return d;
-    });
-
-    const pendingByDay = weekDates.map((date) => {
-      const file = getDailyNoteFile(this.app, date);
-      return file ? hasPendingTasks(this.app, file) : false;
-    });
-
-    if (!weatherConfig) {
-      weekDates.forEach((date, i) =>
-        renderDayColumn(grid, date, undefined, false, this.openPeriodicNoteUseCase, pendingByDay[i])
-      );
-    } else {
-      weekDates.forEach((date, i) =>
-        renderDayColumn(grid, date, undefined, true, this.openPeriodicNoteUseCase, pendingByDay[i])
-      );
-
-      const file = this.app.vault.getAbstractFileByPath(this.sourcePath) as TFile;
-      const mondayStr = toLocalISODate(this.monday);
-      const cached = readForecastCache(this.app, file, mondayStr);
-
-      if (cached) {
-        grid.empty();
-        weekDates.forEach((date, i) =>
-          renderDayColumn(grid, date, cached[i], true, this.openPeriodicNoteUseCase, pendingByDay[i])
-        );
-      } else {
-        this.fetchForecastUseCase
-          .execute(weatherConfig, this.monday)
-          .then(async (forecasts) => {
-            grid.empty();
-            weekDates.forEach((date, i) =>
-              renderDayColumn(grid, date, forecasts[i], true, this.openPeriodicNoteUseCase, pendingByDay[i])
-            );
-            await writeForecastCache(this.app, file, forecasts, mondayStr);
-          })
-          .catch(() => { /* leave placeholders */ });
-      }
+      const file = getDailyNoteFile(this.app, d);
+      const pending = file ? hasPendingTasks(this.app, file) : false;
+      renderDayColumn(grid, d, this.openPeriodicNoteUseCase, pending);
     }
 
     const { excludedTagPrefixes } = this.settingsManager.get();
@@ -419,10 +320,9 @@ class WeeklyNoteWidgetComponent extends MarkdownRenderChild {
 
 // ── Renderer entry point ──────────────────────────────────────────────────────
 
-export class WeeklyNoteWidgetRenderer {
+export class TwWeeklyWidgetRenderer {
   constructor(
     private readonly parseUseCase: ParseWeeklyNoteConfigUseCase,
-    private readonly fetchForecastUseCase: FetchWeeklyForecastUseCase,
     private readonly openPeriodicNoteUseCase: OpenPeriodicNoteUseCase,
     private readonly app: App,
     private readonly settingsManager: SettingsManager
@@ -430,12 +330,10 @@ export class WeeklyNoteWidgetRenderer {
 
   render(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext): void {
     ctx.addChild(
-      new WeeklyNoteWidgetComponent(
+      new TwWeeklyWidgetComponent(
         el,
         source,
-        ctx.sourcePath,
         this.parseUseCase,
-        this.fetchForecastUseCase,
         this.openPeriodicNoteUseCase,
         this.app,
         this.settingsManager

@@ -13,16 +13,29 @@ interface OpenMeteoDailyResponse {
 
 /** Formats a Date as "YYYY-MM-DD" in local time */
 function toLocalISODate(d: Date): string {
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
+  return (
+    d.getFullYear() +
+    "-" +
+    String(d.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(d.getDate()).padStart(2, "0")
+  );
+}
+
+function localDateStr(): string {
+  return toLocalISODate(new Date());
 }
 
 /**
  * Infrastructure adapter: fetches a 7-day weekly forecast from Open-Meteo.
- * Uses past_days=6&forecast_days=7 to guarantee coverage of any day of the week,
- * then filters the response to the exact Mon–Sun of the requested week.
+ *
+ * Endpoint selection:
+ *   - Week entirely in the past (sunday < today):
+ *       archive-api.open-meteo.com/v1/archive  — historical observations
+ *   - Current week or future:
+ *       api.open-meteo.com/v1/forecast         — forecast + recent history
+ *
+ * Both endpoints accept explicit start_date / end_date.
  */
 export class OpenMeteoForecastAdapter implements IWeatherForecastPort {
   async fetchWeekForecast(
@@ -30,9 +43,18 @@ export class OpenMeteoForecastAdapter implements IWeatherForecastPort {
     weekMonday: Date
   ): Promise<DailyForecast[]> {
     const tempUnit = config.units === "fahrenheit" ? "fahrenheit" : "celsius";
-
     const sunday = new Date(weekMonday);
     sunday.setDate(weekMonday.getDate() + 6);
+
+    const startStr = toLocalISODate(weekMonday);
+    const endStr = toLocalISODate(sunday);
+    const today = localDateStr();
+
+    // Use archive for weeks entirely in the past; forecast for current/future
+    const isPastWeek = endStr < today;
+    const baseUrl = isPastWeek
+      ? "https://archive-api.open-meteo.com/v1/archive"
+      : "https://api.open-meteo.com/v1/forecast";
 
     const params = new URLSearchParams({
       latitude: config.latitude.toString(),
@@ -40,13 +62,11 @@ export class OpenMeteoForecastAdapter implements IWeatherForecastPort {
       daily: "weather_code,temperature_2m_max,temperature_2m_min",
       temperature_unit: tempUnit,
       timezone: "auto",
-      start_date: toLocalISODate(weekMonday),
-      end_date: toLocalISODate(sunday),
+      start_date: startStr,
+      end_date: endStr,
     });
 
-    const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
-    const response = await fetch(url);
-
+    const response = await fetch(`${baseUrl}?${params}`);
     if (!response.ok) {
       throw new Error(`Open-Meteo forecast error: ${response.status} ${response.statusText}`);
     }
@@ -54,25 +74,18 @@ export class OpenMeteoForecastAdapter implements IWeatherForecastPort {
     const data = (await response.json()) as OpenMeteoDailyResponse;
     const { time, weather_code, temperature_2m_max, temperature_2m_min } = data.daily;
 
-    // Build the 7 ISO date strings for Mon–Sun of the requested week
-    const weekDates = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(weekMonday);
-      d.setDate(d.getDate() + i);
-      return toLocalISODate(d);
-    });
-
-    return weekDates.map((isoDate, i) => {
+    // Map Mon–Sun, matching by ISO date string to handle any gaps
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(weekMonday);
+      date.setDate(weekMonday.getDate() + i);
+      const isoDate = toLocalISODate(date);
       const idx = time.indexOf(isoDate);
-      const fallbackDate = new Date(weekMonday);
-      fallbackDate.setDate(weekMonday.getDate() + i);
 
       if (idx === -1) {
-        // Day not in API response — return placeholder with code -1
-        return { date: fallbackDate, weatherCode: -1, maxTemp: 0, minTemp: 0 };
+        return { date, weatherCode: -1, maxTemp: 0, minTemp: 0 };
       }
-
       return {
-        date: fallbackDate,
+        date,
         weatherCode: weather_code[idx],
         maxTemp: Math.round(temperature_2m_max[idx]),
         minTemp: Math.round(temperature_2m_min[idx]),

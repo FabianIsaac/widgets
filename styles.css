@@ -326,6 +326,114 @@
   border-bottom-color: var(--text-accent);
 }
 
+/* ── Quick-capture section ── */
+
+.widget-daily__captures {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 12px;
+  margin-top: 10px;
+}
+
+.widget-daily__captures-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.widget-daily__capture-btn {
+  padding: 3px 10px;
+  border-radius: var(--radius-s, 4px);
+  border: 1px solid var(--background-modifier-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small, 13px);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.widget-daily__capture-btn:hover {
+  color: var(--text-normal);
+  border-color: var(--text-muted);
+}
+
+.widget-daily__capture-btn.is-active {
+  color: var(--text-accent);
+  border-color: var(--text-accent);
+  background-color: var(--background-modifier-hover);
+}
+
+.widget-daily__captures-input-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.widget-daily__captures-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--background-modifier-border);
+  border-radius: 0;
+  padding: 2px 0;
+  font-size: var(--font-ui-small, 13px);
+  color: var(--text-normal);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.widget-daily__captures-input::placeholder {
+  color: var(--text-faint);
+}
+
+.widget-daily__captures-input:focus {
+  border-bottom-color: var(--text-accent);
+}
+
+.widget-daily__events-loading {
+  font-size: var(--font-ui-small, 13px);
+  color: var(--text-faint);
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.widget-daily__events {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.widget-daily__event {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.widget-daily__event-time {
+  flex-shrink: 0;
+  font-size: var(--font-ui-smaller, 12px);
+  color: var(--text-accent);
+  white-space: nowrap;
+}
+
+.widget-daily__event-title {
+  font-size: var(--font-ui-small, 13px);
+  color: var(--text-normal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
 /* ============================================================
    Obsidian Widgets — Monthly Note Widget styles
    ============================================================ */
@@ -373,6 +481,36 @@
 
 .widget-monthly__year:hover {
   color: var(--text-accent);
+}
+
+.widget-monthly__progress {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.widget-monthly__progress-text {
+  font-size: var(--font-ui-smaller, 10px);
+  color: var(--text-muted);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.widget-monthly__progress-track {
+  width: 56px;
+  height: 4px;
+  border-radius: 99px;
+  background-color: var(--background-modifier-border);
+  overflow: hidden;
+}
+
+.widget-monthly__progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background-color: var(--interactive-accent);
+  transition: width 0.3s ease;
 }
 
 /* ── Grid ── */
@@ -515,6 +653,27 @@
   padding: 2px 0;
 }
 
+.widget-weekly__week-nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.widget-weekly__nav-btn {
+  font-size: 0.85em;
+  color: var(--text-faint);
+  cursor: pointer;
+  user-select: none;
+  line-height: 1;
+  transition: color 0.15s ease;
+  padding: 0 1px;
+}
+
+.widget-weekly__nav-btn:hover {
+  color: var(--text-normal);
+}
+
 .widget-weekly__week-label {
   font-size: 0.7em;
   font-weight: 600;
@@ -638,6 +797,86 @@
   color: var(--text-faint);
 }
 
+.widget-weekly__day-task-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: 1px solid var(--text-faint);
+  margin: 2px auto 0;
+  flex-shrink: 0;
+}
+
+/* ── Week summary row ── */
+
+.widget-weekly__summary {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 8px;
+  gap: 8px;
+}
+
+.widget-weekly__summary-tags {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.widget-weekly__summary-tag {
+  font-size: var(--font-ui-smaller, 10px);
+  color: var(--text-faint);
+  background-color: var(--background-modifier-hover);
+  border-radius: 99px;
+  padding: 1px 6px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.widget-weekly__summary-metrics {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.widget-weekly__summary-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 3px;
+  cursor: default;
+}
+
+.widget-weekly__summary-icon {
+  font-size: 9px;
+  color: var(--interactive-accent);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.widget-weekly__summary-icon--pending {
+  color: var(--text-faint);
+  font-weight: 400;
+}
+
+.widget-weekly__summary-icon--notes {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.widget-weekly__summary-value {
+  font-size: var(--font-ui-smaller, 10px);
+  font-weight: 600;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
 /* ============================================================
    Obsidian Widgets — Monthly calendar tag-color dots
    ============================================================ */
@@ -656,6 +895,29 @@
   height: 5px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+.widget-monthly__day-dot--pending {
+  background-color: transparent !important;
+  border: 1.5px solid var(--text-muted);
+  box-sizing: border-box;
+}
+
+.widget-monthly__day-task-done {
+  font-size: 7px;
+  line-height: 5px;
+  color: var(--interactive-accent);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.widget-monthly__day-tasks {
+  font-size: 8px;
+  color: var(--text-faint);
+  line-height: 1;
+  margin-top: 1px;
+  text-align: center;
 }
 
 /* ── Tag legend ── */
@@ -701,4 +963,16 @@
   flex-shrink: 0;
   align-self: center;
   margin-left: 4px;
+}
+
+/* Subsection header within a widget settings group */
+h4.widget-settings__subsection {
+  font-size: var(--font-ui-small, 13px);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 20px 0 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--background-modifier-border);
 }

@@ -1,4 +1,5 @@
 import type ObsidianWidgetsPlugin from "../../main";
+import type { CaptureButtonConfig } from "@domain/widget/value-objects/DailyNoteConfig";
 
 /** A tag-to-color mapping entry for the monthly calendar dot coloring */
 export interface TagColorEntry {
@@ -12,6 +13,21 @@ export interface LinkColorEntry {
   /** Basename of the linked file (without extension, e.g. "_Dashboard Vicente") */
   link: string;
   /** Friendly name shown in the legend instead of the raw filename */
+  alias?: string;
+  /** One of: red, orange, yellow, green, cyan, blue, purple, pink */
+  color: string;
+}
+
+/**
+ * A frontmatter property + value to color mapping.
+ * Matches when frontmatter[property] equals value (case-insensitive string comparison).
+ */
+export interface FrontmatterColorEntry {
+  /** Frontmatter property key (e.g. "mood", "energy") */
+  property: string;
+  /** Expected value (e.g. "happy", "true", "5") */
+  value: string;
+  /** Friendly name shown in the legend */
   alias?: string;
   /** One of: red, orange, yellow, green, cyan, blue, purple, pink */
   color: string;
@@ -43,6 +59,26 @@ export interface WidgetPluginSettings {
   tagColors: TagColorEntry[];
   /** Link-to-color mappings for monthly calendar dot coloring */
   linkColors: LinkColorEntry[];
+  /** Frontmatter property-value-to-color mappings for monthly calendar dot coloring */
+  frontmatterColors: FrontmatterColorEntry[];
+  /**
+   * Tag prefixes to exclude from the weekly summary top-tags list.
+   * E.g. ["tipo/", "area/"] — any tag starting with these is ignored.
+   * Store without the leading #.
+   */
+  excludedTagPrefixes: string[];
+  /**
+   * Global tag added to the frontmatter of a daily note when the first
+   * gratitude entry is submitted. Can be overridden per-widget via YAML.
+   * Store without the leading #. Empty string disables the feature.
+   */
+  gratitudeAutoTag: string;
+  /**
+   * Global capture button templates for the daily widget.
+   * Used when a widget-daily block does not define its own `captures:` list.
+   * Entries without a `heading` are grouped under the current hour block (HH:00).
+   */
+  captureTemplates: CaptureButtonConfig[];
 }
 
 export const DEFAULT_SETTINGS: WidgetPluginSettings = {
@@ -53,6 +89,10 @@ export const DEFAULT_SETTINGS: WidgetPluginSettings = {
   units: "celsius",
   tagColors: [],
   linkColors: [],
+  frontmatterColors: [],
+  excludedTagPrefixes: [],
+  gratitudeAutoTag: "",
+  captureTemplates: [],
 };
 
 /**
