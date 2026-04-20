@@ -1,9 +1,9 @@
-# Obsidian Widgets — User Guide
+# Obsidian Widgets — Guía de usuario
 
-## Installation
+## Instalación
 
-1. Copy `main.js`, `manifest.json`, and `styles.css` into your vault's `.obsidian/plugins/obsidian-widgets/` folder.
-2. In Obsidian → Settings → Community plugins, enable **Obsidian Widgets**.
+1. Copia `main.js`, `manifest.json` y `styles.css` en la carpeta `.obsidian/plugins/obsidian-widgets/` de tu vault.
+2. En Obsidian → Configuración → Plugins de la comunidad, activa **Obsidian Widgets**.
 
 ---
 
@@ -11,32 +11,32 @@
 
 ### widget-dashboard
 
-Renders a quick-access icon bar and a date bar. Clicking icons opens notes or runs commands.
+Muestra una barra de acceso rápido con íconos y una barra de fecha. Al hacer clic en los íconos se abren notas o se ejecutan comandos.
 
 ````markdown
 ```widget-dashboard
 icons:
   - icon: calendar
     link: "Daily Notes/2026-04-13"
-    tooltip: "Today"
+    tooltip: "Hoy"
   - icon: list-checks
     command: "tasks:open"
-    tooltip: "Tasks"
+    tooltip: "Tareas"
 ```
 ````
 
-| Property | Type | Description |
+| Propiedad | Tipo | Descripción |
 |---|---|---|
-| `icon` | string | Lucide icon name |
-| `link` | string | Note path to open (optional) |
-| `command` | string | Obsidian command ID to run (optional) |
-| `tooltip` | string | Hover text (optional) |
+| `icon` | string | Nombre de ícono de Lucide |
+| `link` | string | Ruta de la nota a abrir (opcional) |
+| `command` | string | ID de comando de Obsidian a ejecutar (opcional) |
+| `tooltip` | string | Texto que aparece al pasar el cursor (opcional) |
 
 ---
 
 ### widget-daily
 
-A date card with optional weather, calendar events, a personalized greeting, quick-capture buttons, and a gratitude section. Can target any date (past or future) or default to today.
+Tarjeta de fecha con clima opcional, eventos de calendario, saludo personalizado, botones de captura rápida y sección de gratitud. Puede apuntar a cualquier fecha (pasada o futura) o usar la fecha de hoy por defecto.
 
 ````markdown
 ```widget-daily
@@ -46,8 +46,8 @@ weather:
   longitude: -70.631
   units: celsius
 calendars:
-  - url: "https://example.com/feed.ics"
-  - url: "https://example.com/other.ics"
+  - url: "https://ejemplo.com/feed.ics"
+  - url: "https://ejemplo.com/otro.ics"
 captures:
   - label: "💭 Pensamiento"
     format: "- {text}"
@@ -63,53 +63,53 @@ gratitude:
 ```
 ````
 
-| Property | Type | Default | Description |
+| Propiedad | Tipo | Por defecto | Descripción |
 |---|---|---|---|
-| `date` | string (`YYYY-MM-DD`) | today | Date this widget represents. Omit for today's note. |
-| `name` | string | — | Name used in the time-of-day greeting |
-| `weather.latitude` | number | plugin default | Location latitude |
-| `weather.longitude` | number | plugin default | Location longitude |
-| `weather.units` | `celsius` / `fahrenheit` | plugin default | Temperature unit |
-| `calendars` | list | — | iCal feed URLs to show events from (see below) |
-| `captures` | list | plugin default | Quick-capture buttons (see below) |
-| `gratitude` | object | — | Gratitude input section (see below) |
+| `date` | string (`YYYY-MM-DD`) | hoy | Fecha que representa este widget. Omitir para la nota de hoy. |
+| `name` | string | — | Nombre usado en el saludo según la hora del día |
+| `weather.latitude` | number | valor global | Latitud de la ubicación |
+| `weather.longitude` | number | valor global | Longitud de la ubicación |
+| `weather.units` | `celsius` / `fahrenheit` | valor global | Unidad de temperatura |
+| `calendars` | lista | — | URLs de feeds iCal para mostrar eventos (ver abajo) |
+| `captures` | lista | plantillas globales | Botones de captura rápida (ver abajo) |
+| `gratitude` | objeto | — | Sección de gratitud (ver abajo) |
 
-All weather fields are optional. If omitted, the plugin uses the defaults set in Settings.
+Todos los campos de clima son opcionales. Si se omiten, el plugin usa los valores configurados en Ajustes.
 
-> **Past and future dates**: When `date` is set, weather is fetched for that specific date (historical archive or forecast). Quick-capture buttons are hidden for any widget that is not today's widget.
+> **Fechas pasadas y futuras**: cuando se especifica `date`, el clima se obtiene para esa fecha exacta (archivo histórico o pronóstico). Los botones de captura rápida se ocultan en cualquier widget que no sea el de hoy.
 
-#### Calendar events
+#### Eventos de calendario
 
-Add one or more iCal feed URLs to display events from. Events are fetched every time the note is opened and stored in the note's frontmatter (`widget_daily_events`) so they survive offline sessions. The display refreshes in the background whenever new data arrives.
+Agrega una o más URLs de feeds iCal para mostrar eventos. Los eventos se obtienen cada vez que se abre la nota y se guardan en el frontmatter de la nota (`widget_daily_events`) para que persistan sin conexión. La vista se actualiza en segundo plano cuando llegan datos nuevos.
 
 ```yaml
 calendars:
-  - url: "https://example.com/calendar.ics"
-  - url: "https://family.example.com/shared.ics"
+  - url: "https://ejemplo.com/calendario.ics"
+  - url: "https://familia.ejemplo.com/compartido.ics"
 ```
 
-Events are deduplicated across feeds (same title + start time = one entry). All-day events appear first, followed by timed events sorted by start time.
+Los eventos se deduplican entre feeds (mismo título + hora de inicio = una sola entrada). Los eventos de día completo aparecen primero, seguidos de los eventos con hora, ordenados por hora de inicio.
 
-#### Quick-capture buttons
+#### Botones de captura rápida
 
-Capture buttons appear as a row of toggleable buttons at the bottom of the widget. Clicking a button opens a shared input field; pressing Enter appends the formatted line to the note and closes the input. Pressing Escape cancels.
+Los botones de captura aparecen como una fila de botones en la parte inferior del widget. Al hacer clic en un botón se abre un campo de texto compartido; presionar Enter agrega la línea formateada a la nota y cierra el campo. Presionar Escape cancela.
 
-Each button is configured with:
+Cada botón se configura con:
 
-| Field | Type | Required | Description |
+| Campo | Tipo | Requerido | Descripción |
 |---|---|---|---|
-| `label` | string | yes | Text shown on the button. Emoji are welcome: `"💭 Pensamiento"` |
-| `format` | string | yes | Template for the appended line. Supports `{text}` (user input) and `{time}` (current HH:mm). Example: `"- {time} {text}"` |
-| `heading` | string | no | Markdown heading to append the line under. If omitted, entries are grouped under an **hour block** (e.g. `## 10:00`) — see below. |
-| `placeholder` | string | no | Input placeholder text. Defaults to "Agregar…" |
-| `after` | number (0–23) | no | Hour of day from which this button becomes visible. `after: 20` hides the button until 8 pm. Defaults to `0` (always visible). |
-| `until` | number (0–23) | no | Hour of day until which this button is visible (exclusive). `until: 10` hides the button at 10:00 am. When `after > until`, the range wraps midnight (e.g. `after: 23, until: 4` → visible 23:00–03:59). Omit to stay visible for the rest of the day. |
+| `label` | string | sí | Texto del botón. Se permiten emojis: `"💭 Pensamiento"` |
+| `format` | string | sí | Plantilla de la línea a agregar. Soporta `{text}` (lo que escribió el usuario) y `{time}` (hora actual HH:mm). Ejemplo: `"- {time} {text}"` |
+| `heading` | string | no | Encabezado de Markdown bajo el cual se agrega la línea. Si se omite, las entradas se agrupan en un **bloque horario** (ej. `## 10:00`) — ver abajo. |
+| `placeholder` | string | no | Texto de placeholder del campo. Por defecto: "Agregar…" |
+| `after` | number (0–23) | no | Hora del día a partir de la cual el botón es visible. `after: 20` oculta el botón hasta las 8 pm. Por defecto: `0` (siempre visible). |
+| `until` | number (0–23) | no | Hora del día hasta la cual el botón es visible (exclusivo). `until: 10` oculta el botón a las 10:00 am. Cuando `after > until`, el rango cruza la medianoche (ej. `after: 23, until: 4` → visible 23:00–03:59). Si se omite, el botón permanece visible el resto del día. |
 
-> **Global templates**: If a `widget-daily` block does not include a `captures:` key, the plugin falls back to the **Quick-capture templates** defined in Settings. This lets you configure your buttons once and have them available in every daily note without repeating the YAML.
+> **Plantillas globales**: si un bloque `widget-daily` no incluye la clave `captures:`, el plugin usa las **Plantillas de captura rápida** definidas en Ajustes. Esto te permite configurar los botones una sola vez y tenerlos disponibles en todas las notas diarias sin repetir el YAML.
 
-#### Hour-block grouping
+#### Agrupación por bloque horario
 
-When a capture has no `heading`, its entries are automatically grouped under a heading named after the current hour — `## 10:00`, `## 14:00`, etc. Multiple entries within the same hour land in the same block. This keeps your daily notes organized by time without any manual setup.
+Cuando una captura no tiene `heading`, sus entradas se agrupan automáticamente bajo un encabezado con la hora actual — `## 10:00`, `## 14:00`, etc. Varias entradas dentro de la misma hora van al mismo bloque. Esto mantiene las notas diarias organizadas por hora sin ninguna configuración manual.
 
 ```markdown
 ## 10:00
@@ -120,23 +120,23 @@ When a capture has no `heading`, its entries are automatically grouped under a h
 - 14:11 💭 Nueva idea para el plugin
 ```
 
-#### Gratitude section
+#### Sección de gratitud
 
-The gratitude configuration adds a dedicated button to the capture row. Its entries always appear as the **last section** in the note — any new hour blocks or headings are inserted above it.
+La configuración de gratitud agrega un botón dedicado a la fila de captura. Sus entradas siempre aparecen como la **última sección** de la nota — cualquier bloque horario nuevo o encabezado se inserta antes de ella.
 
-| Field | Type | Required | Description |
+| Campo | Tipo | Requerido | Descripción |
 |---|---|---|---|
-| `heading` | string | yes | Markdown heading used as the section title and button label |
-| `after` | number (0–23) | no | Hour from which the button becomes visible. Defaults to `0`. |
-| `tag` | string | no | Tag added to the note's frontmatter on the first gratitude entry. Overrides the global setting. Without `#`. |
+| `heading` | string | sí | Encabezado de Markdown usado como título de la sección y como texto del botón |
+| `after` | number (0–23) | no | Hora a partir de la cual el botón es visible. Por defecto: `0`. |
+| `tag` | string | no | Etiqueta agregada al frontmatter de la nota en la primera entrada de gratitud. Reemplaza la configuración global. Sin `#`. |
 
-> **Global auto-tag**: You can configure a global gratitude tag in Settings → "Auto-etiqueta de gratitud". The per-widget `tag` field overrides it for that specific widget.
+> **Etiqueta automática global**: puedes configurar una etiqueta global de gratitud en Ajustes → "Auto-etiqueta de gratitud". El campo `tag` del widget la reemplaza solo para ese widget.
 
 ---
 
 ### widget-weekly
 
-A 7-day grid for the week, with a weather forecast for each day.
+Grilla de 7 días para la semana, con pronóstico del tiempo para cada día.
 
 ````markdown
 ```widget-weekly
@@ -148,32 +148,32 @@ weather:
 ```
 ````
 
-| Property | Type | Default | Description |
+| Propiedad | Tipo | Por defecto | Descripción |
 |---|---|---|---|
-| `week` | number | current week | ISO week number (1–53) |
-| `year` | number | current year | Full year |
-| `weather` | object | — | Same as `widget-daily`. Omit to hide weather. |
+| `week` | number | semana actual | Número de semana ISO (1–53) |
+| `year` | number | año actual | Año completo |
+| `weather` | objeto | — | Igual que `widget-daily`. Omitir para ocultar el clima. |
 
-Clicking a day opens its daily note. Clicking the month opens the monthly note. Clicking the year opens the yearly note. Use the `‹` / `›` arrows to navigate between weeks.
+Al hacer clic en un día se abre su nota diaria. Al hacer clic en el mes se abre la nota mensual. Al hacer clic en el año se abre la nota anual. Usa las flechas `‹` / `›` para navegar entre semanas.
 
-#### Week summary
+#### Resumen semanal
 
-Below the 7-day grid, the widget shows a summary row for the displayed week:
+Debajo de la grilla de 7 días, el widget muestra una fila de resumen para la semana:
 
-| Indicator | Meaning |
+| Indicador | Significado |
 |---|---|
-| `#tag` pills | Top 3 most-used tags across daily notes in the week |
-| `+N` | Notes created this week (excludes daily notes) |
-| `✓ X/Y` | Completed tasks out of total tasks |
-| `○ N` | Days with at least one pending task |
+| Píldoras `#tag` | Top 3 etiquetas más usadas en las notas diarias de la semana |
+| `+N` | Notas creadas esta semana (excluye notas diarias) |
+| `✓ X/Y` | Tareas completadas sobre el total |
+| `○ N` | Días con al menos una tarea pendiente |
 
-Hover any metric to see a tooltip with more detail. Tags starting with configured **excluded prefixes** (Settings) are hidden from the top-tags list.
+Pasa el cursor sobre cualquier métrica para ver un tooltip con más detalle. Las etiquetas que empiezan con **prefijos excluidos** (Ajustes) se ocultan de la lista de top etiquetas.
 
 ---
 
 ### widget-monthly
 
-A full monthly calendar grid with colored dots and task indicators per day.
+Grilla de calendario mensual completo con puntos de color e indicadores de tareas por día.
 
 ````markdown
 ```widget-monthly
@@ -183,65 +183,65 @@ legend: true
 ```
 ````
 
-| Property | Type | Default | Description |
+| Propiedad | Tipo | Por defecto | Descripción |
 |---|---|---|---|
-| `month` | number | current month | Month number (1–12) |
-| `year` | number | current year | Full year |
-| `legend` | boolean | `false` | Show a color legend below the calendar |
+| `month` | number | mes actual | Número de mes (1–12) |
+| `year` | number | año actual | Año completo |
+| `legend` | boolean | `false` | Mostrar una leyenda de colores debajo del calendario |
 
-Clicking a day number opens its daily note. Clicking a week number opens its weekly note. Clicking the month or year opens the corresponding periodic note.
+Al hacer clic en el número de un día se abre su nota diaria. Al hacer clic en el número de semana se abre la nota semanal. Al hacer clic en el mes o año se abre la nota periódica correspondiente.
 
-#### Day indicators
+#### Indicadores por día
 
-Each day can show up to three types of information below its number:
+Cada día puede mostrar hasta tres tipos de información debajo de su número:
 
-| Indicator | What it means |
+| Indicador | Qué significa |
 |---|---|
-| Colored dot `●` | The daily note has a matching tag, link, or frontmatter property (configured in Settings) |
-| `✓` (accent color) | The daily note has at least one completed task (`- [x]`) |
-| `○` (outline circle) | The daily note has at least one pending task (`- [ ]`) |
-| `X/Y` (small text) | Task ratio — X completed out of Y total tasks |
+| Punto de color `●` | La nota diaria tiene una etiqueta, enlace o propiedad de frontmatter coincidente (configurado en Ajustes) |
+| `✓` (color de énfasis) | La nota diaria tiene al menos una tarea completada (`- [x]`) |
+| `○` (círculo sin relleno) | La nota diaria tiene al menos una tarea pendiente (`- [ ]`) |
+| `X/Y` (texto pequeño) | Proporción de tareas — X completadas de Y totales |
 
-> The `✓` and `○` indicators are read directly from Obsidian's metadata cache — no need to have the note open.
+> Los indicadores `✓` y `○` se leen directamente del caché de metadatos de Obsidian — no es necesario tener la nota abierta.
 
-#### Configuring colored dots
+#### Configurar puntos de color
 
-Go to **Settings → Obsidian Widgets** to configure which properties generate color dots.
+Ve a **Ajustes → Obsidian Widgets** para configurar qué propiedades generan puntos de color.
 
-**Tag colors**
-Map a note tag to a color. If a daily note has that tag in its frontmatter, the dot appears.
+**Colores por etiqueta**
+Asocia una etiqueta de nota a un color. Si una nota diaria tiene esa etiqueta en su frontmatter, aparece el punto.
 
 ```yaml
-# Daily note frontmatter example
+# Ejemplo de frontmatter de nota diaria
 tags: [review, personal]
 ```
 
-**Link colors**
-Map an outgoing wiki-link to a color. If a daily note contains `[[My Project]]`, configure `link: My Project`.
+**Colores por enlace**
+Asocia un wiki-link saliente a un color. Si una nota diaria contiene `[[Mi Proyecto]]`, configura `link: Mi Proyecto`.
 
-**Frontmatter property colors**
-Map any frontmatter property and its value to a color. Comparison is case-insensitive.
+**Colores por propiedad de frontmatter**
+Asocia cualquier propiedad de frontmatter y su valor a un color. La comparación es insensible a mayúsculas.
 
 ```yaml
-# Daily note frontmatter examples
+# Ejemplos de frontmatter de notas diarias
 mood: happy
 energy: high
 reviewed: true
 rating: 5
 ```
 
-In Settings, configure:
-- Property: `mood` / Value: `happy`
-- Property: `energy` / Value: `high`
-- Property: `reviewed` / Value: `true`
+En Ajustes, configura:
+- Propiedad: `mood` / Valor: `happy`
+- Propiedad: `energy` / Valor: `high`
+- Propiedad: `reviewed` / Valor: `true`
 
-Each matched rule adds a colored dot under that day. If multiple rules produce the same color, it is only shown once.
+Cada regla que coincida agrega un punto de color debajo de ese día. Si varias reglas producen el mismo color, se muestra solo una vez.
 
 ---
 
 ### tw-weekly
 
-A simplified weekly grid without weather. Designed for backward compatibility. Accepts JSON input.
+Grilla semanal simplificada sin clima. Diseñada para compatibilidad con versiones anteriores. Acepta entrada JSON.
 
 ````markdown
 ```tw-weekly
@@ -252,84 +252,84 @@ A simplified weekly grid without weather. Designed for backward compatibility. A
 ```
 ````
 
-| Property | Type | Default | Description |
+| Propiedad | Tipo | Por defecto | Descripción |
 |---|---|---|---|
-| `week` | number | current week | ISO week number |
-| `year` | number | current year | Full year |
+| `week` | number | semana actual | Número de semana ISO |
+| `year` | number | año actual | Año completo |
 
-Clicking a day opens its daily note. Identical navigation to `widget-weekly` but no weather data is shown or fetched.
+Al hacer clic en un día se abre su nota diaria. Navegación idéntica a `widget-weekly` pero sin datos ni consultas de clima.
 
 ---
 
-## Settings
+## Ajustes
 
-Open **Settings → Obsidian Widgets** to configure global defaults.
+Abre **Ajustes → Obsidian Widgets** para configurar los valores globales.
 
-### Language
-Controls the language used for widget labels. `Auto` follows Obsidian's own language setting. Available: Auto, English, Español.
+### Idioma
+Controla el idioma usado en las etiquetas de los widgets. `Auto` sigue el idioma propio de Obsidian. Disponible: Auto, English, Español.
 
-### Default weather location
-Used by `widget-daily` and `widget-weekly` when no weather block is specified in the code block.
+### Ubicación de clima por defecto
+Usada por `widget-daily` y `widget-weekly` cuando no se especifica un bloque de clima en el código.
 
-| Field | Description |
+| Campo | Descripción |
 |---|---|
-| Latitude | Decimal latitude (e.g. `-33.511`) |
-| Longitude | Decimal longitude (e.g. `-70.631`) |
-| Location name | Display name shown in the weather card (optional) |
-| Temperature units | Celsius or Fahrenheit |
+| Latitud | Latitud decimal (ej. `-33.511`) |
+| Longitud | Longitud decimal (ej. `-70.631`) |
+| Nombre de ubicación | Nombre que se muestra en la tarjeta del clima (opcional) |
+| Unidades de temperatura | Celsius o Fahrenheit |
 
-### Quick-capture templates (daily widget)
-Global capture buttons available in all `widget-daily` blocks. If a widget defines its own `captures:` key, these are ignored for that widget.
+### Plantillas de captura rápida (widget diario)
+Botones de captura globales disponibles en todos los bloques `widget-daily`. Si un widget define su propio `captures:`, estas plantillas se ignoran para ese widget.
 
-Each template has:
-- **Label** — text shown on the button
-- **Format** — line template using `{text}` and/or `{time}`
-- **Heading** — markdown heading to append under. Leave empty to use hour-block grouping (`## HH:00`)
+Cada plantilla tiene:
+- **Label** — texto del botón
+- **Format** — plantilla de línea usando `{text}` y/o `{time}`
+- **Heading** — encabezado de Markdown bajo el cual agregar. Dejar vacío para usar la agrupación por bloque horario (`## HH:00`)
 
-### Gratitude auto-tag (daily widget)
-A tag added automatically to the daily note's frontmatter when the first gratitude entry is submitted. Store without the `#`. Leave empty to disable. Can be overridden per-widget with `gratitude.tag`.
+### Auto-etiqueta de gratitud (widget diario)
+Etiqueta agregada automáticamente al frontmatter de la nota diaria cuando se registra la primera entrada de gratitud. Guardar sin el `#`. Dejar vacío para desactivar. Puede reemplazarse por widget con `gratitude.tag`.
 
-### Tag colors
-Each entry maps a note tag to a color. Colors available: Red, Orange, Yellow, Green, Cyan, Blue, Purple, Pink.
+### Colores por etiqueta
+Cada entrada asocia una etiqueta de nota a un color. Colores disponibles: Rojo, Naranja, Amarillo, Verde, Cian, Azul, Violeta, Rosa.
 
-### Link colors
-Each entry maps an outgoing wiki-link basename to a color. The **alias** field lets you show a friendly name in the legend instead of the raw filename.
+### Colores por enlace
+Cada entrada asocia el nombre de un wiki-link saliente a un color. El campo **alias** permite mostrar un nombre amigable en la leyenda en lugar del nombre de archivo.
 
-### Frontmatter property colors
-Each entry maps a frontmatter `property: value` pair to a color. The **label** field sets the legend text; if omitted, the legend shows `property: value`.
+### Colores por propiedad de frontmatter
+Cada entrada asocia un par `propiedad: valor` de frontmatter a un color. El campo **label** define el texto de la leyenda; si se omite, la leyenda muestra `propiedad: valor`.
 
-### Excluded tag prefixes (weekly summary)
-Tag prefixes to exclude from the week summary's top-tags list. For example, adding `tipo/` will suppress `tipo/diario`, `tipo/trabajo`, etc. from the weekly top-tags display. Store without the `#`.
+### Prefijos de etiquetas excluidos (resumen semanal)
+Prefijos de etiquetas a excluir de la lista de top etiquetas del resumen semanal. Por ejemplo, agregar `tipo/` suprimirá `tipo/diario`, `tipo/trabajo`, etc. Guardar sin el `#`.
 
 ---
 
-## Color palette reference
+## Paleta de colores
 
-The dot system uses Obsidian's semantic color variables:
+El sistema de puntos usa las variables de color semánticas de Obsidian:
 
-| Name | Variable |
+| Nombre | Variable |
 |---|---|
-| Red | `--color-red` |
-| Orange | `--color-orange` |
-| Yellow | `--color-yellow` |
-| Green | `--color-green` |
-| Cyan | `--color-cyan` |
-| Blue | `--color-blue` |
-| Purple | `--color-purple` |
-| Pink | `--color-pink` |
+| Rojo | `--color-red` |
+| Naranja | `--color-orange` |
+| Amarillo | `--color-yellow` |
+| Verde | `--color-green` |
+| Cian | `--color-cyan` |
+| Azul | `--color-blue` |
+| Violeta | `--color-purple` |
+| Rosa | `--color-pink` |
 
-These adapt automatically to your Obsidian theme.
+Se adaptan automáticamente al tema de Obsidian que estés usando.
 
 ---
 
-## Tips
+## Consejos
 
-- **`after` / `until` for time-gated buttons**: Use `after: 20` on a gratitude button so it only appears in the evening; add `until: 10` on a morning capture to hide it after 10 am. Combine both to restrict a button to a specific window.
-- **Hour-block grouping**: Omit `heading` from a capture to have entries auto-sorted by hour. Entries at 10:05 and 10:47 both go under `## 10:00`; entries at 11:30 get their own `## 11:00`.
-- **Gratitude stays last**: The gratitude section is always the last heading in the note. Any new hour blocks are inserted before it even when you add them later in the day.
-- **Multiple calendar feeds**: List as many `calendars` URLs as you like. Events from all feeds are merged and deduplicated automatically — the same event appearing in two shared calendars is shown only once.
-- **Calendar events on past notes**: When a widget has a `date` set to a past day, events are fetched for that date from the iCal feeds (provided the feed still serves historical data).
-- **Multiple dots per day**: A day can show multiple colored dots if several rules match. Dots are deduped by color — the same color won't appear twice even if matched by both a tag and a frontmatter rule.
-- **Task ratio without tasks**: The `X/Y` ratio only appears if the note has at least one task item. Days with no tasks show no ratio.
-- **Days outside the current month**: Gray out in the monthly view and are not clickable.
-- **Days without a note**: Shown with a muted day number. No dots or task indicators are rendered since there is no file to read.
+- **`after` / `until` para botones con horario**: usa `after: 20` en un botón de gratitud para que solo aparezca de noche; agrega `until: 10` en una captura matutina para ocultarla después de las 10 am. Combina ambos para restringir un botón a una ventana horaria específica.
+- **Agrupación por bloque horario**: omite `heading` en una captura para que las entradas se ordenen automáticamente por hora. Las entradas a las 10:05 y 10:47 van bajo `## 10:00`; las de las 11:30 crean su propio `## 11:00`.
+- **Gratitud siempre al final**: la sección de gratitud es siempre el último encabezado de la nota. Cualquier bloque horario nuevo se inserta antes de ella incluso si lo agregas más tarde en el día.
+- **Múltiples feeds de calendario**: agrega tantas URLs en `calendars` como quieras. Los eventos de todos los feeds se fusionan y deduplicán automáticamente — el mismo evento en dos calendarios compartidos se muestra una sola vez.
+- **Eventos en notas pasadas**: cuando un widget tiene `date` apuntando a un día pasado, los eventos se obtienen para esa fecha desde los feeds iCal (siempre que el feed sirva datos históricos).
+- **Múltiples puntos por día**: un día puede mostrar varios puntos de color si coinciden varias reglas. Los puntos se deduplicán por color — el mismo color no aparece dos veces aunque lo generen una etiqueta y una regla de frontmatter.
+- **Proporción de tareas sin tareas**: el ratio `X/Y` solo aparece si la nota tiene al menos un ítem de tarea. Los días sin tareas no muestran ratio.
+- **Días fuera del mes actual**: se muestran en gris en la vista mensual y no son clickeables.
+- **Días sin nota**: se muestran con el número de día atenuado. No se renderizan puntos ni indicadores de tareas ya que no hay archivo que leer.

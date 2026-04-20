@@ -286,12 +286,10 @@ function renderWeekSummary(container: HTMLElement, stats: WeekStats): void {
 
   const summary = container.createDiv({ cls: "widget-weekly__summary" });
 
-  // Tags row (left-aligned)
-  if (stats.topTags.length > 0) {
-    const tagsEl = summary.createDiv({ cls: "widget-weekly__summary-tags" });
-    for (const { tag } of stats.topTags) {
-      tagsEl.createEl("span", { cls: "widget-weekly__summary-tag", text: `#${tag}` });
-    }
+  // Tags row (left-aligned) — always present so metrics stay right-aligned
+  const tagsEl = summary.createDiv({ cls: "widget-weekly__summary-tags" });
+  for (const { tag } of stats.topTags) {
+    tagsEl.createEl("span", { cls: "widget-weekly__summary-tag", text: `#${tag}` });
   }
 
   // Right-aligned metrics
